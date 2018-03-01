@@ -1,0 +1,11 @@
+# Won't track local configuration files and build files
+config/**
+deployable/**
+
+# Won't track Eclipse project files
+.project
+.settings
+.classpath
+
+# Other stuff we won't track
+.directory

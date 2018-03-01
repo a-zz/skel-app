@@ -1,0 +1,141 @@
+--------------------------------------------------------------------------------
+  skel-app
+
+  Basic layout and features for a J2EE application for personal projects
+
+  github.com/a-zz, 2018
+--------------------------------------------------------------------------------
+
+[Template INSTALL file, customize accordingly]
+
+..:: INITIAL SETUP ::..
+Before the first build we should take a few minutes setting up our local
+installation. That means:
+
+i. Editing the log4j2 configuration file config/web/WEB-INF/log4j2.xml to suit
+our needs and customize logging file path.
+
+ii. Editing config/web/WEB-INF/local.properties to suit our needs. We should at
+least provide the path for our local (HSQLDB) database, as it will be created 
+and populated at the first boot.
+
+..:: BUILDING ::..
+In a nutshell, provided we have:
+
+> JDK 1.8, properly referred by the JAVA_HOME environment variable
+> Apache Ant 1.9, properly accesible by the PATH environment variable
+> (prior versions could work but, though not tested)
+
+we should only need to enter the application directory and run:
+
+  # ant
+
+If everything runs fine, we should have a j2ee-deployable directory in
+
+  deployable/skel-app/
+  
+CUSTOMIZING OUR INSTALLATION: THE BUILDING PROCCESS EXPLAINED
+
+Basically, the application layout is:
+  source/        - Source code, consisting of:
+    java/		   - Compilable (Java) code 
+    web/		   - Non-compilable code (web files)
+  lib/			 - Libraries (mostly JARs) needed for compilation
+  deployable/	 - This is where the deployable product is dropped, i.e.:
+    skel-app/    - The j2ee-deployable application directory  
+  config/		 - Persistent configuration directory, see below
+  
+The building process goes as this:
+
+1. init - Set the build timestamp and the deployable target directory
+
+2. layout - Set the application layout. This basically means copying the
+	source/web directory as deployable/skel-app/
+	
+3. compile - Compile Java files to deployable/skel-app/WEB-INF/classes. JARs
+	needed for this are found in the lib/ directory.
+	
+4. configure - Apply persistent configurations to the deployable application.
+	Again, see below.
+	
+5. deployable - Final touches to the deployable application. Basically, copying 
+	the JARs from lib/ to deployable/skel-app/WEB-INF/lib, and anything 
+	else that should be neccesary.
+	
+Ok, it's time for the configuration step.
+
+This application is intended to have a continuous integration cycle. That is:
+update from the version control repository > build > deploy > go!; and do 
+it often. Thus, local configuration files located within the deployable 
+directory should be kept among checkouts. What we do is:
+
+i. Place our configuration files under config/web/. That directory isn't
+(shouldn't) be tracked by the version control system, so checkouts won't 
+modify them.
+
+2. The configuration step in the building process just copies / overwrites those
+files from config/web/ to deployable/skel-app/, keeping their subdirectory 
+locations, i.e.:
+
+	config/						deployable/
+		web/						skel-app/
+			WEB-INF/					WEB-INF/
+				a_file_here --------------> a_file_here
+				
+Thus, our configuration isn't lost among checkouts. In fact, this mechanism
+can be used for any file we may want to keep apart, or locally-customize,
+from the version control system, not only configuration files. But beware! 
+New releases altering those files will need a proper reconfiguration under 
+config/web/.
+
+Also under config/ can be found the build/ subdirectory. That's intended for
+local configurations affecting the build process. Currently none.
+
+..:: DEPLOYMENT ::..
+As said, when the build process is finished we have a j2ee-deployable 
+directory in deployable/skel-app/. So, in order to deploy it we can:
+
+i. copy it to the servlet container deployment directory (e.g. 
+$TOMCAT_HOME/webapps/); or
+
+ii. if you're building on the target server, you can just place a symbolic link
+under the servlet container deployment directory to deployable/skel-app/. This 
+works like a charm on Linux, (and Mac Os X, supposedly) and it's our favourite 
+approach; can't tell if it's feasible on Windows.
+
+Alternatively, you can package the deployable directory as a WAR file just 
+running:
+
+  # ant war
+  
+That should produce a WAR file under deployable/.
+
+..:: DEVELOPMENT ENVIRONMENTS ::..
+We currently use Eclipse (Neon 3 or Oxygen) as IDE, so the guidelines below
+apply to that environment. Other IDEs should work fine, though; their users
+nned to figure out how these guidelines apply to them.
+
+Importing the project directory in Eclipse, building it with the builtin Ant 
+tool and debugging it under an embedded server should be quite straightforward, 
+so just a few remarks are worth:
+
+i. An Ant build should be made before configuring the project Build Path in 
+order to populate de deployable directory. Build Path output folder should be
+deployable/skel-app/WEB-INF/classes/, so changes to Java files are hot-replaced
+into the debugging application.
+
+ii. Non-compilable web files are copied at build time from source/web/ to
+deployable/skel-app/. Changes in the later directory are hot-replaced into the
+debugging application, but are **not** tracked by GIT. Those changes must be
+applied to source/web/ prior to committing. Eclipse compare tool works fine for
+that. It's advisable to apply changes often in order to avoid local changes 
+being destroyed by a later checkout and rebuild. The, the daily routine should
+be:
+
+  Apply pending changes to source/web/ > Git fetch and checkout > Ant build
+
+iii. A .gitignore file is provided to avoid tracking of the deployable/ and 
+config/ directories. It also avoids Eclipse project settings files; those using
+an alternative IDE may want to customize that.
+
+--------------------------------------------------------------------------------

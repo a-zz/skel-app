@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="ERROR">
+ 	
+	<CustomLevels>
+		<!-- Custom level for data protection auditing: WARN > DPRTCT > INFO -->
+		<CustomLevel name="DPRTCT" intLevel="350" />	
+		<!-- Custom level for SQL auditing: DEBUG > SQL > TRACE  -->
+    	<CustomLevel name="SQL" intLevel="550" />
+  	</CustomLevels>	  
+	  
+	<Appenders>
+		<console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%p]\t%m [%c]%n"/>
+	 	</console> 
+	</Appenders>			
+	
+	<Loggers>
+		<Root level="INFO">
+			<AppenderRef ref="console"/>
+		</Root>
+	</Loggers>
+		
+</Configuration>

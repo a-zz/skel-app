@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE web-app 
+    PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" 
+    "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+
+	<!-- General description -->
+	<display-name>skel-app</display-name>
+	<description>
+		Basic application layout for personal projects
+	</description>
+
+	<!-- Context parameters -->
+	<context-param>
+		<param-name>webmaster</param-name>
+		<param-value>your.mail@he.re</param-value>
+		<description>
+			The email address of the administrator to whom questions
+			and comments about this application should be addressed.
+		</description>
+	</context-param>
+	
+	<!-- Entry page -->
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<!-- Servlet definitions -->
+	<!-- (nothing yet) -->
+
+	<!-- Define mappings -->
+	<!-- (nothing yet) -->
+
+	<!-- Session config -->
+	<session-config>
+		<session-timeout>5</session-timeout>
+	</session-config>
+
+	<!-- Initial configuration -->
+	<listener>
+		<listener-class>
+			io.github.azz.config.BootConfigurator
+		</listener-class>
+	</listener>
+
+</web-app>

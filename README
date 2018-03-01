@@ -1,0 +1,17 @@
+--------------------------------------------------------------------------------
+  skel-app
+
+  Basic layout and features for a J2EE application for personal projects
+
+  github.com/a-zz, 2018
+--------------------------------------------------------------------------------
+
+..:: FEATURES so far ::..
+* Embedded HSQLDB database with connection tracking, transaction support and 
+    autoversioning.
+* Flexible building process for continuous integration workflows. Builtin
+    local configuration support for target machine.
+* App logging via log4j2.
+* Tested for servlet container: Apache Tomcat 8.5
+
+--------------------------------------------------------------------------------

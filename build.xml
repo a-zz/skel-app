@@ -1,0 +1,61 @@
+<project name="skel-app" default="deployable" basedir=".">
+	<description>
+    	Basic application layout for personal projects
+  	</description>
+	
+	<!-- Global properties -->
+	<property name="deploy.name" value="skel-app"/>
+	<property name="src.web" location="source/web" />
+	<property name="src.java" location="source/java" />
+	<property name="lib" location="lib"/>
+	<property name="config" location="config"/>
+	<property name="deployable" location="deployable/${deploy.name}"/>
+	
+	<!-- Build tasks -->
+	<target name="init" description="Initialize...">
+		<tstamp/>
+		<mkdir dir="${deployable}"/>
+	</target>
+
+	<target name="layout" description="Set the basic layout">
+		<copy todir="${deployable}" overwrite="true" verbose="true">  
+		    <fileset dir="${src.web}"/>  
+		</copy>
+	</target>
+	
+	<target name="compile" depends="layout" description="Compile sources">
+		<javac srcdir="${src.java}" destdir="${deployable}/WEB-INF/classes" 
+			includeantruntime="false">
+			<classpath>
+				<pathelement location="${lib}/hsqldb-2.4.0.jar"/>
+				<pathelement location="${lib}/javax.servlet-api-3.1.0.jar"/>
+				<pathelement location="${lib}/log4j-api-2.10.0.jar"/>
+				<pathelement location="${lib}/log4j-core-2.10.0.jar"/>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="configure" depends="layout" 
+		description="Apply persistent configuration">
+		<copy todir="${deployable}" overwrite="true" verbose="true">
+			<fileset dir="${config}/web"/>
+		</copy>	
+	</target>
+	
+	<target name="deployable" depends="compile,configure" 
+		description="Generate the deployable application">
+		<copy todir="${deployable}/WEB-INF/lib" >  
+		    <fileset dir="${lib}" includes="*.jar"/>  
+		</copy>
+	</target>
+
+	<target name="clean" description="Clean up previous builds">
+		<delete dir="${deployable}" />
+	</target>
+	
+	<!-- TODO Not tested yet -->
+	<target name="war" depends="deployable" 
+		description="Create a deployable WAR package">
+		<war basedir="${deployable}" destfile="deployable/${deploy.name}.war"/>
+	</target>
+</project>
