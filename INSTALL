@@ -133,12 +133,12 @@ deployable/skel-app/. Changes in the later directory are hot-replaced into the
 debugging application, but are **not** tracked by GIT. Those changes must be
 applied to source/web/ prior to committing. Eclipse compare tool works fine for
 that. It's advisable to apply changes often in order to avoid local changes 
-being destroyed by a later checkout and rebuild. The, the daily routine should
+being destroyed by a later checkout and rebuild. Then, the daily routine should
 be:
 
   Apply pending changes to source/web/ > Git fetch and checkout > Ant build
 
-iii. A .gitignore file may (should?) be used to avoid tracking of the 
+iii. A .gitignore file may (should) be used to avoid tracking of the 
 deployable/ and config/ directories. A sample file is provided, which also 
 avoids tracking of Eclipse project settings files and other stuff. It's just
 needed to copy sample.gitignore as .gitignore to have it doing its magic.
