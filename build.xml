@@ -56,7 +56,6 @@
 		<delete dir="${deployable}" />
 	</target>
 	
-	<!-- TODO Not tested yet -->
 	<target name="war" depends="deployable" 
 		description="Create a deployable WAR package">
 		<war basedir="${deployable}" destfile="deployable/${deploy.name}.war"/>
