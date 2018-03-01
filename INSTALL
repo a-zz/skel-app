@@ -114,11 +114,14 @@ That should produce a WAR file under deployable/.
 ..:: DEVELOPMENT ENVIRONMENTS ::..
 We currently use Eclipse (Neon 3 or Oxygen) as IDE, so the guidelines below
 apply to that environment. Other IDEs should work fine, though; their users
-nned to figure out how these guidelines apply to them.
+need to figure out how these guidelines apply to them.
 
 Importing the project directory in Eclipse, building it with the builtin Ant 
-tool and debugging it under an embedded server should be quite straightforward, 
-so just a few remarks are worth:
+tool and debugging it under an embedded server should be quite straightforward.
+Those unwilling to mess with manual setup can rely on the "New Project > Java 
+Project from Existing Ant Buildfile" wizard, which works pretty well.
+
+Anyway, a few things worth saying:
 
 i. An Ant build should be made before configuring the project Build Path in 
 order to populate de deployable directory. Build Path output folder should be
