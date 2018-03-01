@@ -17,16 +17,18 @@
 		<mkdir dir="${deployable}"/>
 	</target>
 
-	<target name="layout" description="Set the basic layout">
+	<target name="layout" depends="init" description="Set the basic layout">
 		<copy todir="${deployable}" overwrite="true" verbose="true">  
 		    <fileset dir="${src.web}"/>  
 		</copy>
 	</target>
 	
 	<target name="compile" depends="layout" description="Compile sources">
+		<mkdir dir="${deployable}/WEB-INF/classes"/>
 		<javac srcdir="${src.java}" destdir="${deployable}/WEB-INF/classes" 
 			includeantruntime="false">
 			<classpath>
+				<pathelement location="${lib}/commons-lang3-3.7.jar"/>
 				<pathelement location="${lib}/hsqldb-2.4.0.jar"/>
 				<pathelement location="${lib}/javax.servlet-api-3.1.0.jar"/>
 				<pathelement location="${lib}/log4j-api-2.10.0.jar"/>
@@ -38,12 +40,13 @@
 	<target name="configure" depends="layout" 
 		description="Apply persistent configuration">
 		<copy todir="${deployable}" overwrite="true" verbose="true">
-			<fileset dir="${config}/web"/>
+			<fileset dir="${config}/web" excludes="CONTENTS" />
 		</copy>	
 	</target>
 	
 	<target name="deployable" depends="compile,configure" 
 		description="Generate the deployable application">
+		<mkdir dir="${deployable}/WEB-INF/lib"/>
 		<copy todir="${deployable}/WEB-INF/lib" >  
 		    <fileset dir="${lib}" includes="*.jar"/>  
 		</copy>
