@@ -138,8 +138,9 @@ be:
 
   Apply pending changes to source/web/ > Git fetch and checkout > Ant build
 
-iii. A .gitignore file is provided to avoid tracking of the deployable/ and 
-config/ directories. It also avoids Eclipse project settings files; those using
-an alternative IDE may want to customize that.
+iii. A .gitignore file may (should?) be used to avoid tracking of the 
+deployable/ and config/ directories. A sample file is provided, which also 
+avoids tracking of Eclipse project settings files and other stuff. It's just
+needed to copy sample.gitignore as .gitignore to have it doing its magic.
 
 --------------------------------------------------------------------------------
