@@ -18,7 +18,7 @@ import io.github.azz.logging.AppLogger;
  */
 public class DbUpdater {
 
-	private static final int appDbVersion = 0;
+	private static final int appDbVersion = 1;
 	
 	/**
 	 * Checks the current database version. If it's lagging behind the current application DB version, an update process
@@ -98,8 +98,7 @@ public class DbUpdater {
 					+ "(ID integer identity primary key, "
 					+ "VERSION integer not null, "
 					+ "DESCRIPTION varchar(100) not null)");
-			t.statement("insert into DBVERSION (VERSION, DESCRIPTION) "
-					+ "values (0, 'Initialize DB version tracking')");
+			saveVersionInfo(0, "Initialize DB version tracking", t);
 		}
 		catch(SQLException e) {
 			throw e;
@@ -109,6 +108,36 @@ public class DbUpdater {
 			AppLogger logger = new AppLogger(DbUpdater.class);
 			logger.debug("Database updated to version 0");
 		}
+	}
+	
+	@SuppressWarnings("unused")
+	private static void updateToVersion1(Boolean unattended) throws SQLException {
+		
+		SqlTransaction t = null;
+		
+		try {
+			t = new SqlTransaction(true);
+			t.statement("create table PROPERTIES "
+					+ "(UUID varchar(40) primary key, "
+					+ "KEY varchar(50) not null, "
+					+ "VALUE clob not null, "
+					+ "CREATED timestamp default localtimestamp not null, "
+					+ "MODIFIED timestamp default localtimestamp not null, "
+					+ "READ timestamp)");
+			saveVersionInfo(1, "Application configuration support", t);
+		}
+		catch(SQLException e) {
+			throw e;
+		}
+		finally {
+			t.close();
+		}
+	}
+	
+	private static void saveVersionInfo(int version, String description, SqlTransaction t) throws SQLException {
+	
+		t.statement("insert into DBVERSION (VERSION, DESCRIPTION) "
+				+ "values (" + version + ", '" + description + "')");
 	}
 }
 /* ****************************************************************************************************************** */

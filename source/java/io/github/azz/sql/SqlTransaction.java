@@ -50,9 +50,10 @@ public class SqlTransaction {
 	/**
 	 * Run a SQL statement, i.e. a SQL instruction not returning any data
 	 * @param sql (String) The SQL instruction to run.
+	 * @return (int) Number of rows affected by the statement
 	 * @throws SQLException
 	 */
-	public void statement(String sql) throws SQLException {
+	public int statement(String sql) throws SQLException {
 		
 		Statement st = null;
 			
@@ -67,6 +68,8 @@ public class SqlTransaction {
 						": -> " + sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
 			else
 				sqlInstructions.add(sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
+			
+			return rows;
 		}
 		catch(SQLException e) {
 			rollback();
@@ -90,9 +93,10 @@ public class SqlTransaction {
 	 * Run a SQL prepared (parametrized) statement
 	 * @param sql (String) The SQL instruction to run.
 	 * @param values (ArrayList<Object>) The list of values to be substituted in the statement
+	 * @return (int) Number of rows affected by the statement
 	 * @throws SQLException
 	 */
-	public void preparedStatement(String sql, ArrayList<Object> values) throws SQLException {
+	public int preparedStatement(String sql, ArrayList<Object> values) throws SQLException {
 		
 		PreparedStatement ps = null;
 		
@@ -108,6 +112,8 @@ public class SqlTransaction {
 						": -> " + sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
 			else
 				sqlInstructions.add(sql + "; (" + rows + " filas; " + watch.getTime() + "ms)");
+			
+			return rows;
 		}
 		catch(SQLException e) {			
 			rollback();
@@ -259,7 +265,7 @@ public class SqlTransaction {
 			Object value = it.next();
 			
 			if(value instanceof String)
-				ps.setString(i, (String)value);
+				ps.setString(i, (String)value	);
 			else if(value instanceof Integer)
 				ps.setInt(i, (Integer)value);
 			else if(value instanceof Long)

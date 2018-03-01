@@ -9,6 +9,7 @@
 ..:: FEATURES so far ::..
 * Embedded HSQLDB database with connection tracking, transaction support and 
     autoversioning.
+* App configuration properties support (database-stored)
 * Flexible building process for continuous integration workflows. Builtin
     local configuration support for target machine.
 * App logging via log4j2.
