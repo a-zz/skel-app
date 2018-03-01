@@ -10,14 +10,15 @@
 
 ..:: INITIAL SETUP ::..
 Before the first build we should take a few minutes setting up our local
-installation. That means:
+installation. That means at least:
 
-i. Editing the log4j2 configuration file config/web/WEB-INF/log4j2.xml to suit
-our needs and customize logging file path.
+i. Copying source/web/WEB-INF/log4j2.xml to config/web/WEB-INF/ and editing the
+later to fit our needs and customize logging file path.
 
-ii. Editing config/web/WEB-INF/local.properties to suit our needs. We should at
-least provide the path for our local (HSQLDB) database, as it will be created 
-and populated at the first boot.
+i. Copying source/web/WEB-INF/local.properties to config/web/WEB-INF/ and 
+editing the later to fit our needs. At least the path for our local (HSQLDB) 
+database should be provided, as it will be created and populated at the first 
+boot.
 
 ..:: BUILDING ::..
 In a nutshell, provided we have:
