@@ -68,7 +68,7 @@ Ok, it's time for the configuration step.
 This application is intended to have a continuous integration cycle. That is:
 update from the version control repository > build > deploy > go!; and do 
 it often. Thus, local configuration files located within the deployable 
-directory should be kept among checkouts. What we do is:
+directory should be kept between checkouts. What we do is:
 
 i. Place our configuration files under config/web/. That directory isn't
 (shouldn't) be tracked by the version control system, so checkouts won't 
@@ -83,7 +83,7 @@ locations, i.e.:
 			WEB-INF/					WEB-INF/
 				a_file_here --------------> a_file_here
 				
-Thus, our configuration isn't lost among checkouts. In fact, this mechanism
+Thus, our configuration isn't lost between checkouts. In fact, this mechanism
 can be used for any file we may want to keep apart, or locally-customize,
 from the version control system, not only configuration files. But beware! 
 New releases altering those files will need a proper reconfiguration under 
