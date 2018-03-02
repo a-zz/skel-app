@@ -6,6 +6,7 @@
 package io.github.azz.config;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -60,14 +61,29 @@ public class BootConfigurator  implements ServletContextListener {
 			throw new RuntimeException(message);
 		}
 
-		logger.info("-- " + sce.getServletContext().getServletContextName() + " up and running! :) -----");
+		// Check wether we're in production or test mode (if app property "app.production" is set, whichever its
+		//	value, we're in production mode)
+		boolean testMode = true; 
+		try {
+			testMode = (AppConfiguration.getProperty("app.production")==null);
+		}
+		catch(SQLException e) {
+			String message = "Unable to read application configuration properties: " + e.getMessage();
+			logger.fatal(message);
+			throw new RuntimeException();
+		}
+		
+		// All done
+		logger.info("\\o/ --> " + sce.getServletContext().getServletContextName() + " up and running! <-- \\o/");
+		if(testMode) 
+			logger.warn("Currently running in ***TEST*** mode!!! (set application property app.production to any value to change into production mode)");
 	}
 	
 	public void contextDestroyed(ServletContextEvent sce) {
 		
 		// Nothing to do here, just logging the app stop
 		AppLogger logger = new AppLogger(BootConfigurator.class);
-		logger.info("-- " + sce.getServletContext().getServletContextName() + " shut down! :( -----");
+		logger.info(":_( --> " + sce.getServletContext().getServletContextName() + " shut down! <-- )_:");
 	}
 }
 
