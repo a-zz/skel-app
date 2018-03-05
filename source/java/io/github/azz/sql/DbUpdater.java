@@ -57,9 +57,8 @@ public class DbUpdater {
 			
 			for(int v = currentDbVersion+1; v<=appDbVersion; v++) {
 				try {
-					Method method = DbUpdater.class.getDeclaredMethod("updateToVersion" + v, Boolean.class);
-					method.setAccessible(true);
-					method.invoke(null, unattended);
+					Method method = dao.getClass().getMethod("updateToVersion" + v, Boolean.class);
+					method.invoke(dao, unattended);
 					logger.debug("Database updated to version " + v);
 				}
 				catch(Exception e) {
