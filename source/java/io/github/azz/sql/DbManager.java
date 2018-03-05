@@ -22,6 +22,9 @@ public class DbManager {
 	private static String usr;
 	private static String pwd;
 	
+	public enum enumDatabaseEngines { HSQLDB };
+	private static enumDatabaseEngines databaseEngine;
+	
 	/**
 	 * Initializes the database manager facility, by reading the connection parameters from the local configuration.
 	 * 	Also checks the database version and updates it if necessary.
@@ -30,11 +33,11 @@ public class DbManager {
 	public static void initialize() throws SQLException {
 		
 		try {
-			url = LocalConfiguration.getProperty("db.hsqldb.url");
-			usr = LocalConfiguration.getProperty("db.hsqldb.usr");
-			pwd = LocalConfiguration.getProperty("db.hsqldb.pwd");
+			url = LocalConfiguration.getProperty("db.url");
+			usr = LocalConfiguration.getProperty("db.usr");
+			pwd = LocalConfiguration.getProperty("db.pwd");
 			
-			Class.forName("org.hsqldb.jdbcDriver");
+			registerDbDriver(url);
 			DbUpdater.checkVersionAndUpdate(true);
 			
 			AppLogger logger = new AppLogger(DbManager.class);
@@ -44,7 +47,16 @@ public class DbManager {
 			throw new SQLException("Unable to initialize the database manager: " + e.getMessage());
 		}
 	}
-
+	
+	/**
+	 * Returns the database engine used.
+	 * @return (enumDatabaseEngine)
+	 */
+	public static enumDatabaseEngines getDatabaseEngine() {
+		
+		return databaseEngine;
+	}
+	
 	/**
 	 * Get a new database connection. This connection is untracked, so it's advisable not to be used directly but by 
 	 * 	means of the SqlConnection class
@@ -56,5 +68,22 @@ public class DbManager {
 		
 		return DriverManager.getConnection(url, usr, pwd);
 	} 
+	
+	/**
+	 * Register the database driver class for the database URL provided. This method must be modified when adding 
+	 * 	support for new database engines.
+	 * @param url (String) The database URL provided. 
+	 * @throws ClassNotFoundException
+	 * @throws {@link UnsupportedOperationException}
+	 */
+	private static void registerDbDriver(String url) throws ClassNotFoundException, UnsupportedOperationException {
+		
+		if(url.startsWith("jdbc:hsqldb")) {
+			Class.forName("org.hsqldb.jdbcDriver");
+			databaseEngine = enumDatabaseEngines.HSQLDB;
+		}
+		else
+			throw new UnsupportedOperationException("Database support not implemented for URL: " + url);
+	}		
 }
 /* ****************************************************************************************************************** */

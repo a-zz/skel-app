@@ -1,0 +1,103 @@
+--------------------------------------------------------------------------------
+  skel-app
+
+  Adding support for database engines
+
+  github.com/a-zz, 2018
+--------------------------------------------------------------------------------
+
+..:: Introduction ::..
+skel-app is intended as a quick & dirty (while coherent) deployable application;
+therefore, HSQLDB is the preferred database engine, as it needs no DBA 
+intervention outside the app: the database is just created on the fly at first 
+boot; from there on, the DbUpdater class takes care of bringing the database 
+version up to the application version deployed.
+
+Anyway, abstract database support is added for flexibiliy, so support for any 
+database can (hopefully) be easily added.
+
+..:: Abstract data access model ::..
+(Unless otherwise stated, classes referred in this section are found within the
+io.github.azz.sql package.)
+
+In order to provide database engine abstraction, data access classes are
+implemented from two interfaces:
+
+  * DaInterface: super-interface for data access classes. Provides the general
+  	abstraction interface and some utility methods.
+  	
+  * .mypackage.da.MyClassDaInterface: interface for a certain class data access, 
+  	extending DaInterface. Defines required methods for data access  
+  	implementations for the class.
+
+The actual data access implementation is found in 
+.mypackage.da.MyClassDATABASE_ENGINE (e.g. .mypackage.da.MyClassHSQLDB). Engines
+currently supported are listed in the DbManager.enumDatabaseEngines member.
+
+Summarizing:
+
+	.mypackage. 				--> A package
+		MyClass 				--> A data access consuming class
+		da.     				--> Data access sub-package
+			MyClassDaInterface	--> Data acces interface for the class
+			MyClassHSQLDB		--> HSQLDB data access implementation
+			MyClassOTHER_ENGINE --> Other RDBMS engine implementation
+
+Engine currently running is got from the DbManager.getDatabaseEngine() method. 
+DbManager takes care of determining the selected engine (from the db.url local 
+property) and loading the driver class.
+
+The utility function DaInterface.getImplClassFor() helps finding the data access 
+implementation class for a certain consuming class and database engine.
+
+Every SQL instruction in the data access implementing classes should be 
+pipelined through the utility class SqlTransaction, that keep tracks of opened 
+transactions, related objects and data connections currently in use.
+
+..:: Implementing support for database engines ::..
+Figure out we're implementing a new .mypackage.MyClass data access consuming 
+class. We need to provide:
+
+  * .mypackage.da.MyClassDaInterface. Abstract data access interface for MyClass
+  	exteding DaInterface. Must define those methods required in implementation
+  	classes.
+  	
+  * A .mypackage.da.MyCassDATABASE_ENGINE class implementing MyClassDaInterface
+  	for every one of the database engines defined in 
+  	DbMabager.enumDatabaseEngines.
+  	
+  * Initialization code in .mypackage.MyClass. This is needed to locate the
+  	proper implementation class, by means of the DaInterface.getImplClassFor()
+  	utility method. E.g.
+  	
+  	private final static MyClassDaInterface dao = init();
+	private static MyClassDaInterface init() {	
+		try {
+			logger = new AppLogger(MyClass.class);
+			return (MyClassDaInterface)DaInterface.
+				getImplClassFor(MyClass.class).newInstance();
+		}
+		catch(Exception e) {
+			logger.error("Unable to instantiate data access implementation " +
+				class for " + MyClass.class);
+			return null;
+		}
+	}
+  	
+.. Coding-style guidelines.. 
+In implementing data access classes and interfaces, the following guidelines
+should be applied:
+
+  * Don't log at data access implementation classes; automatic logging by 
+  	SqlTransaction class should be enough at that level.
+  	
+  * Data access implementation classes' methods MUST catch SqlException in
+  	order to close the transaction in the finally{} block, and then re-throw
+  	the exception.
+  	
+  * Data acces consuming classes' methods (i.e. .mypackage.MyClass) SHOULDN'T
+  	catch any exception emerging from implementation classes.
+  	
+As usual, the best approach to meeting this guidelines is copying code from 
+an already-working data access consuming class.  	  	 
+--------------------------------------------------------------------------------

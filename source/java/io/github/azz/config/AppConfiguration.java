@@ -5,13 +5,11 @@
 
 package io.github.azz.config;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
+import io.github.azz.config.da.AppConfigurationDaInterface;
 import io.github.azz.logging.AppLogger;
-import io.github.azz.sql.DbReplicator;
-import io.github.azz.sql.SqlTransaction;
+import io.github.azz.sql.DaInterface;
 
 /**
  * Application configuration properties (database-stored)
@@ -19,6 +17,29 @@ import io.github.azz.sql.SqlTransaction;
  */
 public class AppConfiguration {
 	
+	private static AppLogger logger;
+	private final static AppConfigurationDaInterface dao = init();
+	
+	/**
+	 * Runs initialization code:
+	 * <ol>
+	 * <li>Instantiates logger object for class</li>
+	 * <li>Instantiate data access object for class and current database engine</li>
+	 * </ol>
+	 * @return 
+	 */
+	private static AppConfigurationDaInterface init() {
+	
+		try {
+			logger = new AppLogger(AppConfiguration.class);
+			return (AppConfigurationDaInterface)DaInterface.getImplClassFor(AppConfiguration.class).newInstance();
+		}
+		catch(Exception e) {
+			logger.error("Unable to instantiate data access implementation class for " + AppConfiguration.class);
+			return null;
+		}
+	}
+
 	/**
 	 * Gets a property value
 	 * @param key (String) The property key
@@ -27,27 +48,9 @@ public class AppConfiguration {
 	 */
 	public static String getProperty(String key) throws SQLException {
 		
-		SqlTransaction t = null;
-		AppLogger logger = new AppLogger(AppConfiguration.class);
-		
-		try {
-			t = new SqlTransaction(true);
-			
-			ResultSet rs = t.query("select UUID, VALUE from PROPERTIES where KEY='" + key + "'");
-			if(!rs.next())
-				return null;
-			else {
-				t.statement("update PROPERTIES set READ=localtimestamp where UUID='" + rs.getString("UUID") + "'");
-				logger.debug("Property " + key + " read");
-				return rs.getString("VALUE");
-			}
-		}
-		catch(SQLException e) {
-			throw e;
-		}
-		finally {
-			t.close();
-		}
+		String value = dao.getProperty(key);
+		logger.debug("Property " + key + " read");
+		return value;
 	}
 	
 	/**
@@ -58,38 +61,8 @@ public class AppConfiguration {
 	 */
 	public static void setProperty(String key, String value) throws SQLException {
 		
-		SqlTransaction t = null;
-		AppLogger logger = new AppLogger(AppConfiguration.class);
-		
-		try {
-			t = new SqlTransaction(true);
-			ArrayList<Object> values = new ArrayList<Object>();
-			values.add(value);
-			
-			// First try to update the property
-			int rows = t.preparedStatement("update PROPERTIES "
-					+ "set VALUE=?, "
-					+ "MODIFIED=localtimestamp "
-					+ "where KEY='" + key + "'"
-					, values);
-			if(rows==1) {
-				logger.debug("Property " + key + " updated");
-				return;
-			}
-			
-			// No rows affected: property doesn't exist: creating now
-			t.preparedStatement("insert into PROPERTIES (UUID, KEY, VALUE, CREATED, MODIFIED) values ("
-					+ "'" + DbReplicator.getUUID() + "', "
-					+ "'" + key + "', "
-					+ "?, localtimestamp, localtimestamp)", values);
-			logger.debug("Property " + key + " created");
-		}
-		catch(SQLException e) {
-			throw e;
-		}
-		finally {
-			t.close();
-		}
+		dao.setProperty(key, value);
+		logger.debug("Property " + key + " set");
 	}
 	
 	/**
@@ -99,19 +72,7 @@ public class AppConfiguration {
 	 */
 	public static void deleteProperty(String key) throws SQLException {
 			
-		SqlTransaction t = null;
-		AppLogger logger = new AppLogger(AppConfiguration.class);
-			
-		try {
-			t = new SqlTransaction(true);
-			t.statement("delete from PROPERTIES where key='" + key + "'");
-			logger.debug("Property " + key + " deleted");
-		}
-		catch(SQLException e) {
-			throw e;
-		}
-		finally {
-			t.close();
-		}
+		dao.deleteProperty(key);
+		logger.debug("Property " + key + " deleted");
 	}
 }

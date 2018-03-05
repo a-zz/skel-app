@@ -7,12 +7,18 @@
 --------------------------------------------------------------------------------
 
 ..:: FEATURES so far ::..
+
 * Embedded HSQLDB database with connection tracking, transaction support and 
-    autoversioning.
+    autoversioning. Data access is in fact abstracted, so support for other 
+    database engines can (hopefully) be easily implemented.
+    
 * App configuration properties support (database-stored)
+
 * Flexible building process for continuous integration workflows. Builtin
     local configuration support for target machine.
+    
 * App logging via log4j2.
+
 * Tested for servlet container: Apache Tomcat 8.5
 
 --------------------------------------------------------------------------------

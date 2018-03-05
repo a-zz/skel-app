@@ -76,7 +76,8 @@ public class BootConfigurator  implements ServletContextListener {
 		// All done
 		logger.info("\\o/ --> " + sce.getServletContext().getServletContextName() + " up and running! <-- \\o/");
 		if(testMode) 
-			logger.warn("Currently running in ***TEST*** mode!!! (set application property app.production to any value to change into production mode)");
+			logger.warn("Currently running in ***TEST*** mode!!! (set application property app.production to any " +
+					"value to change into production mode)");
 	}
 	
 	public void contextDestroyed(ServletContextEvent sce) {
