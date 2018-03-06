@@ -53,11 +53,15 @@ public class Reflection {
 					// Not really a class, resuming operation
 					continue;
 				}
-				if(superClassNameFilter!=null && !className.equals(superClassNameFilter)) {
-					// Applying super class filter					
-					Class superClassFilter = Class.forName(superClassNameFilter);					
-					if(superClassFilter.isAssignableFrom(classFound))
-						foundClassesList.add(className);
+				if(superClassNameFilter!=null) {
+					if(className.equals(superClassNameFilter))
+						continue;
+					else {
+						// Checking super class filter					
+						Class superClassFilter = Class.forName(superClassNameFilter);					
+						if(superClassFilter.isAssignableFrom(classFound))
+							foundClassesList.add(className);
+					}
 				}
 				else
 					foundClassesList.add(className);
