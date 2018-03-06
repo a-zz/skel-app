@@ -18,8 +18,7 @@ import io.github.azz.logging.AppLogger;
 
 /**
  * Utility class for SQL Transactions
- * TODO Test thoroughfully!
- * TODO A lockTable() function is required (exlusive mode).
+ * TODO To be tested thoroughfully!
  * @author a-zz
  */
 public class SqlTransaction {

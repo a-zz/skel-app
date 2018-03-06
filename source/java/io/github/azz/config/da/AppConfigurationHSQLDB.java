@@ -11,12 +11,13 @@ import java.util.ArrayList;
 
 import io.github.azz.sql.DbReplicator;
 import io.github.azz.sql.SqlTransaction;
+import io.github.azz.sql.rdbms.HSQLDBInterface;
 
 /**
  * HSQLDB data access implementation for AppConfiguration class
  * @author a-zz
  */
-public class AppConfigurationHSQLDB implements AppConfigurationDaInterface {
+public class AppConfigurationHSQLDB implements AppConfigurationDaInterface, HSQLDBInterface {
 
 	/**
 	 * Gets a property value

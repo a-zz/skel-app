@@ -8,6 +8,8 @@
 
 ..:: FEATURES so far ::..
 
+* Designed for quick & dirty (while coherent) deployments.
+
 * Embedded HSQLDB database with connection tracking, transaction support and 
     autoversioning. Data access is in fact abstracted, so support for other 
     database engines can (hopefully) be easily implemented.

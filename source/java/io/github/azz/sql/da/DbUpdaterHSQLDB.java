@@ -10,12 +10,13 @@ import java.sql.SQLException;
 import java.sql.SQLSyntaxErrorException;
 
 import io.github.azz.sql.SqlTransaction;
+import io.github.azz.sql.rdbms.HSQLDBInterface;
 
 /**
  * HSQLDB data access implementation for DbUpdater class
  * @author a-zz
  */
-public class DbUpdaterHSQLDB implements DbUpdaterDaInterface {
+public class DbUpdaterHSQLDB implements DbUpdaterDaInterface, HSQLDBInterface {
 	
 	public int getCurrentDbVersion() throws SQLException {
 		

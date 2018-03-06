@@ -14,6 +14,7 @@ import javax.servlet.ServletContextListener;
 import io.github.azz.logging.AppLogManager;
 import io.github.azz.logging.AppLogger;
 import io.github.azz.sql.DbManager;
+import io.github.azz.sql.rdbms.RdbmsSupport;
 
 /**
  * Performs initial configuration at startup. So far:
@@ -70,6 +71,25 @@ public class BootConfigurator  implements ServletContextListener {
 		catch(SQLException e) {
 			String message = "Unable to read application configuration properties: " + e.getMessage();
 			logger.fatal(message);
+			throw new RuntimeException();
+		}
+		
+		// Check wether database support is complete
+		try {
+			RdbmsSupport.checkImplementation(DbManager.getDatabaseEngine(), !testMode);
+		}
+		catch(IOException e) {
+			String message = "Unable to check database engine support (weird!): " + e.getMessage();
+			logger.fatal(message);
+			throw new RuntimeException();
+		}
+		catch(ClassNotFoundException e) {
+			String message = "Unable to check database engine support (weird!): " + e.getMessage();
+			logger.fatal(message);
+			throw new RuntimeException();
+		}
+		catch(UnsupportedOperationException e) {
+			logger.fatal(e.getMessage());
 			throw new RuntimeException();
 		}
 		

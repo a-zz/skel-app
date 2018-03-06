@@ -11,6 +11,8 @@ import java.sql.SQLException;
 
 import io.github.azz.config.LocalConfiguration;
 import io.github.azz.logging.AppLogger;
+import io.github.azz.sql.rdbms.RdbmsSupport;
+import io.github.azz.sql.rdbms.RdbmsSupport.enumDatabaseEngines;
 
 /**
  * Database management
@@ -22,7 +24,6 @@ public class DbManager {
 	private static String usr;
 	private static String pwd;
 	
-	public enum enumDatabaseEngines { HSQLDB };
 	private static enumDatabaseEngines databaseEngine;
 	
 	/**
@@ -37,7 +38,7 @@ public class DbManager {
 			usr = LocalConfiguration.getProperty("db.usr");
 			pwd = LocalConfiguration.getProperty("db.pwd");
 			
-			registerDbDriver(url);
+			databaseEngine = RdbmsSupport.registerDriver(url);
 			DbUpdater.checkVersionAndUpdate(true);
 			
 			AppLogger logger = new AppLogger(DbManager.class);
@@ -68,22 +69,5 @@ public class DbManager {
 		
 		return DriverManager.getConnection(url, usr, pwd);
 	} 
-	
-	/**
-	 * Register the database driver class for the database URL provided. This method must be modified when adding 
-	 * 	support for new database engines.
-	 * @param url (String) The database URL provided. 
-	 * @throws ClassNotFoundException
-	 * @throws {@link UnsupportedOperationException}
-	 */
-	private static void registerDbDriver(String url) throws ClassNotFoundException, UnsupportedOperationException {
-		
-		if(url.startsWith("jdbc:hsqldb")) {
-			Class.forName("org.hsqldb.jdbcDriver");
-			databaseEngine = enumDatabaseEngines.HSQLDB;
-		}
-		else
-			throw new UnsupportedOperationException("Database support not implemented for URL: " + url);
-	}		
 }
 /* ****************************************************************************************************************** */
