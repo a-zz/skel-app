@@ -194,12 +194,5 @@ public class PkiUtil {
 		
 		return result;
 	}
-	
-	public static void main(String[] args) throws Exception {
-
-		System.out.println(getBase64Hash("hola".getBytes(), EnumHashAlg.SHA256));
-		System.out.println(getBase64Hash("hola", EnumHashAlg.SHA256));
-		System.out.println(getBase64Hash(new File("/home/DPA/a.suarez/Escritorio/Ahora/prueba1.txt"), EnumHashAlg.SHA256));
-	}	
 }
 /* ****************************************************************************************************************** */
