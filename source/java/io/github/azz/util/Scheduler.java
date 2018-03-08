@@ -33,6 +33,11 @@ public class Scheduler {
 	public static void initialize() 
 			throws ClassNotFoundException, IllegalAccessException, InstantiationException, SQLException {
 		 
+		if(!Reflection.packageExists(scheduledTaskPackageName)) {
+			logger.debug("Task scheduler not initialized! (" + scheduledTaskPackageName + " package not found)");
+			return;
+		}
+		
 		timer = new Timer();
 		scheduledTaskList = new ArrayList<Schedulable>();
 		
