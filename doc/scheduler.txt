@@ -1,0 +1,73 @@
+--------------------------------------------------------------------------------
+  skel-app
+
+  Builtin task scheduler
+
+  github.com/a-zz, 2018
+--------------------------------------------------------------------------------
+
+..:: Introduction ::..
+skel-app's builtin task scheduler supports running recurrent unattended 
+operations at a fixed rate. These are suitable for maintenance and monitoring 
+purposes, e.g.
+
+..:: Scheduler setup ::.. 
+The scheduler is initialized at application boot. Scheduled tasks are defined
+as classes under the io.github.azz.util.scheduled package extending the 
+Schedulable super-class (see below). Upon initialization, the scheduler looks up 
+for those classes, loads them and sets the per-class schedule.
+
+The schedule for each class is got from the application property which key
+is the class name (e.g. "io.github.azz.util.scheduled.MyClass"). Three 
+parameters define the schedule:
+
+  * Enabled / disabled .
+  * Start time: time within the day for the task's first run.
+  * Recurrency period: time interval (in milliseconds) for the task to recur 
+  	after the first run.
+  	
+The methods getSetup() and saveSetup() in the Schedulable class take care of
+reading and writing the task setup property. If the property isn't found, 
+schedule defaults to: disabled; 00:00:00; 3 600 000 milliseconds (i.e. 1 hour).
+
+The scheduler can be shut down. In addition to cleaning up, this gives every 
+scheduled task the chance for a last run, which comes handy for certain uses
+(e.g. statistics gathering, remote synchronization, etc.). Thus, the scheduler
+should always be (it is, by now) explicitly shut down at application shutdown.
+
+..:: Implementing a new task ::..
+A new task can be implemented just by placing a class under the 
+io.github.azz.util.scheduled package. The class must extend the Schedulable
+super-class and implement its abstract methods:
+
+  * run(): actions to be performed recurrently.
+  * lastRun(): actions to be perfomed at last run (at scheduler shut down).
+
+  /* ** Sample code ********************************************************* */
+  package io.github.azz.util.scheduled;
+
+  import io.github.azz.logging.AppLogger;
+  import io.github.azz.util.Schedulable;
+
+  public class Test extends Schedulable {
+
+	  private static AppLogger logger = new AppLogger(HealthCheck.class);
+		
+	  public void run() {
+		
+		  // Things to be done here
+		  logger.debug("Scheduled task test: recurrent run");
+	  }
+
+	  public void lastRun() {
+		
+		  // Things to be done here
+		  logger.debug("Scheduled task test: last run");
+	  }
+  }
+  /* ************************************************************************ */
+
+The Schedulable super-class has no support for reentrancy-awareness (i.e. what
+happens when launching a task's run() method while it's still running from a 
+previous scheduled run). This support must be added per-class if needed.
+--------------------------------------------------------------------------------

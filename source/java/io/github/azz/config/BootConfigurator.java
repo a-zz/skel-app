@@ -15,6 +15,7 @@ import io.github.azz.logging.AppLogManager;
 import io.github.azz.logging.AppLogger;
 import io.github.azz.sql.DbManager;
 import io.github.azz.sql.rdbms.RdbmsSupport;
+import io.github.azz.util.Scheduler;
 
 /**
  * Performs initial configuration at startup. So far:
@@ -23,6 +24,7 @@ import io.github.azz.sql.rdbms.RdbmsSupport;
  * <li>Initialize the local configuration container (from WEB-INF/local.properties file)</li>
  * <li>Initialize the database management facility</li>
  * </ol>
+ * Execution is launched at boot as a web application listener, as defined in WEB-INF/web.xml
  * @author a-zz
  */
 public class BootConfigurator  implements ServletContextListener {
@@ -32,7 +34,7 @@ public class BootConfigurator  implements ServletContextListener {
 	
 	public void contextInitialized(ServletContextEvent sce) {
 		
-		// Initialize the logging utility
+		// 1. Initialize the logging utility
 		AppLogger logger;
 		try {
 			AppLogManager.initialize(sce.getServletContext().getRealPath(log4j2ConfigPath));
@@ -42,7 +44,7 @@ public class BootConfigurator  implements ServletContextListener {
 			throw new RuntimeException("Unable to initialize logging utility: " + e.getMessage());
 		}
 		
-		// Initialize the local configuration container
+		// 2. Initialize the local configuration container
 		try {
 			LocalConfiguration.initialize(sce.getServletContext().getRealPath(localPropertiesPath));
 		}
@@ -52,7 +54,7 @@ public class BootConfigurator  implements ServletContextListener {
 			throw new RuntimeException(message);
 		}
 
-		// Initialize the database management facility
+		// 3. Initialize the database management facility
 		try {
 			DbManager.initialize();
 		}
@@ -62,7 +64,7 @@ public class BootConfigurator  implements ServletContextListener {
 			throw new RuntimeException(message);
 		}
 
-		// Check wether we're in production or test mode (if app property "app.production" is set, whichever its
+		// 4. Check wether we're in production or test mode (if app property "app.production" is set, whichever its
 		//	value, we're in production mode)
 		boolean testMode = true; 
 		try {
@@ -74,7 +76,7 @@ public class BootConfigurator  implements ServletContextListener {
 			throw new RuntimeException();
 		}
 		
-		// Check wether database support is complete
+		// 5. Check wether database support is complete
 		try {
 			RdbmsSupport.checkImplementation(DbManager.getDatabaseEngine(), !testMode);
 		}
@@ -93,6 +95,15 @@ public class BootConfigurator  implements ServletContextListener {
 			throw new RuntimeException();
 		}
 		
+		// 6. Initialize the scheduler
+		try {
+			Scheduler.initialize();
+		}
+		catch(Exception e) {
+			logger.fatal("Unable to initialize task scheduler: " + e.getMessage());
+			throw new RuntimeException();
+		}
+		
 		// All done
 		logger.info("\\o/ --> " + sce.getServletContext().getServletContextName() + " up and running! <-- \\o/");
 		if(testMode) 
@@ -102,7 +113,9 @@ public class BootConfigurator  implements ServletContextListener {
 	
 	public void contextDestroyed(ServletContextEvent sce) {
 		
-		// Nothing to do here, just logging the app stop
+		// Shutdown task scheduler
+		Scheduler.shutdown();
+		
 		AppLogger logger = new AppLogger(BootConfigurator.class);
 		logger.info(":_( --> " + sce.getServletContext().getServletContextName() + " shut down! <-- )_:");
 	}
