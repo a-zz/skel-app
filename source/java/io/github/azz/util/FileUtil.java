@@ -24,6 +24,7 @@ import javax.activation.MimetypesFileTypeMap;
 
 import org.apache.commons.lang3.StringUtils;
 
+import io.github.azz.config.LocalConfiguration;
 import io.github.azz.logging.AppLogger;
 
 /**
@@ -43,8 +44,10 @@ public class FileUtil {
 	 */
 	public static byte[] readBinary(File src) throws FileNotFoundException, IOException {
 		
-    	InputStream is = null;
-   	 
+		if(!checkLocalServerFileSizeLimit(src))
+			throw new IOException("Source file size exceeds local server limit; refused to read: " + src);
+		
+    	InputStream is = null;   	 
     	try {
     		is = new FileInputStream(src);
 	    	long length = src.length();
@@ -80,9 +83,11 @@ public class FileUtil {
 	 */
 	public static String readText(File src) throws FileNotFoundException, IOException {
 	
-		StringBuffer sb = new StringBuffer(1000);
-		BufferedReader reader = null;
+		if(!checkLocalServerFileSizeLimit(src))
+			throw new IOException("Source file size exceeds local server limit; refused to read: " + src);
 		
+		StringBuffer sb = new StringBuffer(1000);
+		BufferedReader reader = null;		
 		try {
 			reader = new BufferedReader(new FileReader(src));
 			
@@ -104,6 +109,18 @@ public class FileUtil {
 		}
 	}
 
+	/**
+	 * Checks whether a file could be read into memory (by readBinary() or readText() methods), according to local
+	 * 	server property server.file.read.limit
+	 * @param src (File) The file checked
+	 * @return (boolean) true if the file size is smaller or equal than the limit set
+	 * @throws IOException
+	 */
+	public static boolean checkLocalServerFileSizeLimit(File src) throws IOException {
+		
+		 return src.length()<=Long.parseLong(LocalConfiguration.getProperty("server.limit.file.read"));
+	}
+	
 	/**
 	 * Writes binary data to a file
 	 * @param dst (File) The destination file. Overwritten if previoulsy exists.
