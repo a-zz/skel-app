@@ -49,7 +49,7 @@ public class AppConfiguration {
 	public static String getProperty(String key) throws SQLException {
 		
 		String value = dao.getProperty(key);
-		logger.debug("Property " + key + " read");
+		logger.trace("Property " + key + " " + (value!=null?"read":"not found"));
 		return value;
 	}
 	
@@ -62,7 +62,7 @@ public class AppConfiguration {
 	public static void setProperty(String key, String value) throws SQLException {
 		
 		dao.setProperty(key, value);
-		logger.debug("Property " + key + " set");
+		logger.trace("Property " + key + " set");
 	}
 	
 	/**
@@ -73,6 +73,6 @@ public class AppConfiguration {
 	public static void deleteProperty(String key) throws SQLException {
 			
 		dao.deleteProperty(key);
-		logger.debug("Property " + key + " deleted");
+		logger.trace("Property " + key + " deleted");
 	}
 }
