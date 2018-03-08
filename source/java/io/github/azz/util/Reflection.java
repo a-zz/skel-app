@@ -27,10 +27,13 @@ public class Reflection {
 	public static void scanPackage(String packageName, boolean recurseSubPackages, 
 			ArrayList<String> foundClassesList, String superClassNameFilter) throws ClassNotFoundException {
 				
+		Class superClassFilter = superClassNameFilter!=null?Class.forName(superClassNameFilter):null;
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		
 		// Loading package as a directory
 		URL packageUrl = classLoader.getResource(packageName.replace(".", "/"));
+		if(packageUrl==null)
+			throw new ClassNotFoundException("Package " + packageName + " doesn't exists"); 
 		File packageDir = new File(packageUrl.getFile());
 		File[] packageContents = packageDir.listFiles();
 		
@@ -57,8 +60,7 @@ public class Reflection {
 					if(className.equals(superClassNameFilter))
 						continue;
 					else {
-						// Checking super class filter					
-						Class superClassFilter = Class.forName(superClassNameFilter);					
+						// Checking super class filter										
 						if(superClassFilter.isAssignableFrom(classFound))
 							foundClassesList.add(className);
 					}
@@ -67,6 +69,18 @@ public class Reflection {
 					foundClassesList.add(className);
 			}
 		}
+	}
+	
+	/**
+	 * Checks whether a package exists
+	 * @param packageName (String) The package name
+	 * @return (boolean)
+	 */
+	public static boolean packageExists(String packageName) {
+		
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		URL packageUrl = classLoader.getResource(packageName.replace(".", "/"));
+		return packageUrl!=null;
 	}
 }
 /* ****************************************************************************************************************** */
