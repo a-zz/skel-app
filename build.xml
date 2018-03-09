@@ -36,15 +36,58 @@
 			</classpath>
 		</javac>
 	</target>
-
-	<target name="configure" depends="layout" 
-		description="Apply persistent configuration">
+		
+	<target name="configure" depends="compile" 
+		description="Applies persistent configuration">
+		<fail message="Local configuration needed. At least
+config/web/WEB-INF/local.properties should be provided; copy it from
+source/web/WEB-INF/local.properties and customize it for target server. Consider
+doing the same for other files under source/web/WEB-INF/">		
+			<condition>
+				<not>
+					<available file="${config}/web/WEB-INF/local.properties"/>			
+				</not>
+			</condition>
+		</fail>
+		<java classname="io.github.azz.config.LocalConfiguration" 
+			classpath="${deployable}/WEB-INF/classes"
+			outputproperty="missing.properties">
+			<arg value="${config}/web/WEB-INF/local.properties"/> 
+			<arg value="${src.web}/WEB-INF/local.properties"/>
+		</java>
+		<fail message="Local configuration out of date. The following keys are
+missing from config/web/WEB-INF/local.properties: ${missing.properties}. Please
+fix and rebuild. Take source/web/WEB-INF/local.properties as a reference.">
+			<condition>
+				<not>
+					<equals arg1="${missing.properties}" arg2=""/>
+				</not>
+			</condition>
+		</fail>
+		<java classname="io.github.azz.config.LocalConfiguration" 
+			classpath="${deployable}/WEB-INF/classes"
+			outputproperty="unnecessary.properties">
+			<arg value="${src.web}/WEB-INF/local.properties"/>
+			<arg value="${config}/web/WEB-INF/local.properties"/> 			
+		</java>
+		<condition property="warn.unnecesary.properties">
+			<not>
+				<equals arg1="${unnecessary.properties}" arg2=""/>
+			</not>			
+		</condition>			
 		<copy todir="${deployable}" overwrite="true" verbose="true">
 			<fileset dir="${config}/web" excludes="CONTENTS" />
 		</copy>	
 	</target>
 	
-	<target name="deployable" depends="compile,configure" 
+	<target name="postconfigure" depends="configure" 
+	if="warn.unnecesary.properties">
+		<echo message="Local configuration posibly out of date. The following
+keys aren't neccesary in config/web/WEB-INF/local.properties:
+${unnecessary.properties}"/>
+	</target>	
+	
+	<target name="deployable" depends="postconfigure" 
 		description="Generate the deployable application">
 		<mkdir dir="${deployable}/WEB-INF/lib"/>
 		<copy todir="${deployable}/WEB-INF/lib" >  

@@ -61,8 +61,48 @@ public class LocalConfiguration {
 			propertiesFileTimeStamp = propertiesFile.lastModified();
 			AppLogger logger = new AppLogger(LocalConfiguration.class);
 			logger.debug("Local configuration reloaded (file modified on disk)");
-
 		}
+	}
+
+	/**
+	 * Compares the key set in a properties file against other.
+	 * <br/><br/>
+	 * This is useful at build time to check whether new releases have changed the WEB-INF/local.properties and the
+	 * 	local copy kept at config/ should be updated.   
+	 * @param fileToBeChecked (File) The properties file to be checked
+	 * @param fileComparedTo (File) The properties file used for comparison
+	 * @return (String) A list of missing properties in the checked file, empty string if none.
+	 * @throws FileNotFoundException
+	 * @throws IOException
+	 */
+	public static String checkProperties(File fileToBeChecked, File fileComparedTo) 
+			throws FileNotFoundException, IOException {
+		
+		Properties toBeChecked = new Properties();
+		toBeChecked.load(new FileInputStream(fileToBeChecked));
+		Properties comparedTo = new Properties();
+		comparedTo.load(new FileInputStream(fileComparedTo));
+		
+		String missingKeys = "";
+		for(Object keyToBeChecked : comparedTo.keySet()) {
+			if(toBeChecked.getProperty(keyToBeChecked.toString())==null)
+				missingKeys += keyToBeChecked.toString() + " ";
+		}
+		
+		return missingKeys;
+	}
+		
+	/**
+	 * Runs the checkLocalCopy() method
+	 * @param args (String[]) Two property files, by name:
+	 * 	[0] The file to be checked
+	 * 	[1] The file to be compared to
+	 * @throws Exception
+	 * @see checkProperties()
+	 */
+	public static void main(String args[]) throws Exception {
+		
+		System.out.println(checkProperties(new File(args[0]), new File(args[1])));
 	}
 }
 /* ****************************************************************************************************************** */

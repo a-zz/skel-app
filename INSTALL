@@ -80,14 +80,23 @@ locations, i.e.:
 
 	config/						deployable/
 		web/						skel-app/
-			WEB-INF/					WEB-INF/
+			anySubDir/					anySubDir/
 				a_file_here --------------> a_file_here
 				
-Thus, our configuration isn't lost between checkouts. In fact, this mechanism
+This way our configuration isn't lost between checkouts. In fact, this mechanism
 can be used for any file we may want to keep apart, or locally-customize,
 from the version control system, not only configuration files. But beware! 
-New releases altering those files will need a proper reconfiguration under 
+New releases modifying those files will need a proper reconfiguration under 
 config/web/.
+
+As the file most likely to be kept this way (and the most likely to be changed 
+between releases, and the most likey to cause trouble) is 
+WEB-INF/local.properties, the copy under config/web/ is checked against that one
+in source/web/ at the configure step; build fails if missing property keys are 
+found. The check is also made reversely: properties in config/ not found in web/ 
+are likely been left behind from earlier releases. In this case an informative 
+message is rendered within the build output, though this doesn't cause the build 
+to fail. 
 
 Also under config/ can be found the build/ subdirectory. That's intended for
 local configurations affecting the build process. Currently none.
