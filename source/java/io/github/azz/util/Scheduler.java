@@ -75,11 +75,15 @@ public class Scheduler {
 	 */
 	public static void shutdown() {
 		
-		for(Schedulable task : scheduledTaskList)
-			task.lastRun();
-		timer.cancel();
-		timer.purge();
-		scheduledTaskList.clear();
+		if(timer!=null) {
+			timer.cancel();
+			timer.purge();
+		}
+		if(scheduledTaskList!=null) {
+			for(Schedulable task : scheduledTaskList)
+				task.lastRun();
+			scheduledTaskList.clear();
+		}
 	}
 }
 /* ****************************************************************************************************************** */
