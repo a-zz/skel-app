@@ -80,9 +80,9 @@ public class DbManager {
 			RdbmsSupport.shutdownEngine(databaseEngine);
 		}
 		catch(Exception e) {
-				logger.error("Couldn't shutdown the database engine: " + e.getMessage());
+				logger.error("Couldn't shut down the database management facility: " + e.getMessage());
 		}
-		logger.debug("Embedded database engine shutdown!");					
+		logger.debug("Database management facility shut down!");					
 	}	
 }
 /* ****************************************************************************************************************** */
