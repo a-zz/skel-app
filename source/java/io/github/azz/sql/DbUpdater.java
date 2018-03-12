@@ -17,7 +17,7 @@ import io.github.azz.sql.da.DbUpdaterDaInterface;
  */
 public class DbUpdater {
 
-	private static final int appDbVersion = 1;
+	private static final int appDbVersion = 0;
 	private static AppLogger logger;
 	private final static DbUpdaterDaInterface dao = init();
 	

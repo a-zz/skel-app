@@ -44,11 +44,19 @@ public class DbUpdaterHSQLDB implements DbUpdaterDaInterface, HSQLDBInterface {
 
 		try {
 			t = new SqlTransaction(true);
-			t.statement("create table DBVERSION "
-					+ "(ID integer identity primary key, "
-					+ "VERSION integer not null, "
-					+ "DESCRIPTION varchar(100) not null)");
-			saveVersionInfo(0, "Initialize DB version tracking", t);
+			t.statement("create table DBVERSION " +
+					"(ID integer identity primary key, " +
+					"VERSION integer not null, " +
+					"INSTALLDATE timestamp default localtimestamp not null, " +
+					"DESCRIPTION varchar(100) not null)");
+			t.statement("create table PROPERTIES " +
+					"(UUID varchar(40) primary key, " +
+					"KEY varchar(50) not null, " +
+					"VALUE clob not null, " +
+					"CREATED timestamp default localtimestamp not null, " +
+					"MODIFIED timestamp default localtimestamp not null, " +
+					"READ timestamp)");
+			saveVersionInfo(0, "Database (and version tracking) initialization", t);
 		}
 		catch(SQLException e) {
 			throw e;
@@ -57,30 +65,7 @@ public class DbUpdaterHSQLDB implements DbUpdaterDaInterface, HSQLDBInterface {
 			t.close();
 		}
 	}
-	
-	public void updateToVersion1(Boolean unattended) throws SQLException {
 		
-		SqlTransaction t = null;
-		
-		try {
-			t = new SqlTransaction(true);
-			t.statement("create table PROPERTIES "
-					+ "(UUID varchar(40) primary key, "
-					+ "KEY varchar(50) not null, "
-					+ "VALUE clob not null, "
-					+ "CREATED timestamp default localtimestamp not null, "
-					+ "MODIFIED timestamp default localtimestamp not null, "
-					+ "READ timestamp)");
-			saveVersionInfo(1, "Application configuration support", t);
-		}
-		catch(SQLException e) {
-			throw e;
-		}
-		finally {
-			t.close();
-		}
-	}
-	
 	public void saveVersionInfo(int version, String description, SqlTransaction t) throws SQLException {
 	
 		t.statement("insert into DBVERSION (VERSION, DESCRIPTION) "
