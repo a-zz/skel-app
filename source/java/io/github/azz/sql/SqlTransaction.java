@@ -144,7 +144,7 @@ public class SqlTransaction {
 				logger.sql("Transaction #" + n + 
 						": -> " + sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
 			else
-				sqlInstructions.add(sql + "; (" + rows + " filas; " + watch.getTime() + "ms)");
+				sqlInstructions.add(sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
 			
 			return rows;
 		}
@@ -180,6 +180,7 @@ public class SqlTransaction {
 		
 		try {
 			st = con.getConnection().createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			watch.reset();
 			watch.start(); 
 			rs = st.executeQuery(sql); 
 			watch.stop();
