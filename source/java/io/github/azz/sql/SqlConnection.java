@@ -7,9 +7,12 @@ package io.github.azz.sql;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 import io.github.azz.logging.AppLogger;
+import io.github.azz.sql.SqlTransaction.EnumIsolationLevels;
+import io.github.azz.sql.rdbms.RdbmsSupport;
 
 /**
  * A SQL database connection, with usage tracking
@@ -25,17 +28,42 @@ public class SqlConnection {
 	private Connection conn;
 	private Integer connSerial;
 	private AppLogger logger = new AppLogger(SqlConnection.class);
+
+	// -- Isolation level map
+	public static final HashMap<EnumIsolationLevels,Integer> isolationLevelMap;
+	static {
+		isolationLevelMap = new HashMap<EnumIsolationLevels,Integer>();
+		isolationLevelMap.put(EnumIsolationLevels.READ_COMMITTED, 	Connection.TRANSACTION_READ_COMMITTED);
+		isolationLevelMap.put(EnumIsolationLevels.READ_UNCOMMITTED, Connection.TRANSACTION_READ_UNCOMMITTED);
+		isolationLevelMap.put(EnumIsolationLevels.REPEATABLE_READ,	Connection.TRANSACTION_REPEATABLE_READ);
+		isolationLevelMap.put(EnumIsolationLevels.SERIALIZABLE, 	Connection.TRANSACTION_SERIALIZABLE);
+	}
 	
 	/**
 	 * Get a new database connection and add it to the open connection table, so it can be tracked along its lifecycle.
+	 * 	Isolation level for the related transactions is "REPEATABLE READ".
 	 * @param autoCommit (boolean) Set the autocommit mode for the connection.
 	 * @throws SQLException
 	 */
 	public SqlConnection(boolean autoCommit) throws SQLException {
 		
+		this(autoCommit, SqlTransaction.EnumIsolationLevels.REPEATABLE_READ);
+	}
+
+	/**
+	 * Get a new database connection and add it to the open connection table, so it can be tracked along its lifecycle.
+	 * 	Isolation level is "REPEATABLE READ".
+	 * @param autoCommit (boolean) Set the autocommit mode for the connection.
+	 * @param isolationLevel (SqlTransaction.EnumIsolationLevels) Isolation level for the new transaction
+	 * @throws SQLException
+	 */
+	public SqlConnection(boolean autoCommit, SqlTransaction.EnumIsolationLevels isolationLevel) throws SQLException {
+		
 		connSerial = new Integer(getSerial());
 		conn = DbManager.getConnection();
-		conn.setAutoCommit(autoCommit);		
+		conn.setAutoCommit(autoCommit);
+		conn.setTransactionIsolation(isolationLevelMap.get(isolationLevel).intValue());
+		RdbmsSupport.checkIsolationLevelSupport(isolationLevel);
 		openConnTable.put(connSerial, this);
 		logger.trace("Got new SQL connection #" + connSerial);
 	}

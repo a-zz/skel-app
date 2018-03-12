@@ -5,10 +5,13 @@
 package io.github.azz.sql.rdbms;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import io.github.azz.logging.AppLogger;
 import io.github.azz.sql.DaInterface;
+import io.github.azz.sql.DbManager;
+import io.github.azz.sql.SqlTransaction;
 import io.github.azz.util.Reflection;
 
 /**
@@ -90,7 +93,7 @@ public class RdbmsSupport {
 		
 		if(url.startsWith("jdbc:hsqldb")) {
 			Class.forName("org.hsqldb.jdbcDriver");
-			logger.debug("HSQLDB driver loaded");
+			logger.debug("HSQLDB JDBC driver loaded");
 			return enumDatabaseEngines.HSQLDB;
 		}
 		else
@@ -122,6 +125,32 @@ public class RdbmsSupport {
 					" is not an inteface");
 		else
 			return engineInterface;
+	}
+	
+	/**
+	 * Check a transaction isolation level support for the current database engine. 
+	 * @param isolationLevel (SqlTransaction.EnumIsolationLevels)
+	 * @throws SQLException if the level choosen is definitely not supported by the engine. Otherwise it returns
+	 * 	quietly, maybe logging some message.
+	 */
+	public static void checkIsolationLevelSupport(SqlTransaction.EnumIsolationLevels isolationLevel) 
+			throws SQLException {
+		
+		switch(DbManager.getDatabaseEngine()) {
+		case HSQLDB:
+			switch(isolationLevel) {
+			case READ_COMMITTED:
+				logger.debug("In HSQLDB v2.x or higher, transaction level READ UNCOMMITED " +
+						"is upgraded to READ COMMITED");
+				break;
+			case REPEATABLE_READ:
+				logger.debug("In HSQLDB v2.x or higher, transaction level REPEATABLE READ " +
+						"is upgraded to SERIALIZABLE");
+				break;
+			default:
+				// All fine, nothing to say
+			}
+		}
 	}
 }
 /* ****************************************************************************************************************** */

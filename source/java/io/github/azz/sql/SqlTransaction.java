@@ -31,11 +31,45 @@ public class SqlTransaction {
 	StopWatch watch = new StopWatch();
 	
 	/**
-	 * Constructor: starts a new SQL transaction
+	 * Isolation levels for transactions, according to following table:
+	 * <pre>
+	 * Isolation Level  Dirty Read  Nonrepeatable Read  Phantom Read
+	 * READ UNCOMMITTED Permitted   Permitted           Permitted
+	 * READ COMMITTED   --          Permitted           Permitted
+	 * REPEATABLE READ  --          --                  Permitted
+	 * SERIALIZABLE     --          --                  --
+	 * </pre>
+	 * Being:
+	 * <ul>
+	 * <li>Dirty read: non-coherent data may be returned by a select (i.e. broken foreing keys)</li>
+	 * <li>Nonrepeateble read: a row selected at some time may change in a later select within the transaction.</li>
+	 * <li>Phantom read: a row selected once remain unchanged until the end of transaction; however, the rows
+	 * 		returned by the select may change because of newly-added rows.</li>
+	 * </ul>
+	 */
+	public enum EnumIsolationLevels {
+		READ_UNCOMMITTED, 
+		READ_COMMITTED, 
+		REPEATABLE_READ,
+		SERIALIZABLE };
+	
+	/**
+	 * Constructor: starts a new SQL transaction with isolation level "REPEATABLE READ".
 	 * @param autoCommit (boolean) Sets the transaction's autocommit mode
 	 * @throws SQLException
 	 */
 	public SqlTransaction(boolean autoCommit) throws SQLException {
+		
+		this(autoCommit, EnumIsolationLevels.REPEATABLE_READ);
+	}
+	
+	/**
+	 * Constructor: starts a new SQL transaction
+	 * @param autoCommit (boolean) Sets the transaction's autocommit mode
+	 * @param (EnumIsolationLevels) Isolation level for the new transaction
+	 * @throws SQLException
+	 */
+	public SqlTransaction(boolean autoCommit, EnumIsolationLevels isolationLevel) throws SQLException {
 		
 		this.logger = new AppLogger(this.getClass());
 		con = new SqlConnection(autoCommit);	
@@ -45,7 +79,7 @@ public class SqlTransaction {
 		if(!autoCommit)
 			sqlInstructions = new ArrayList<String>();
 	}
-	
+			
 	/**
 	 * Run a SQL statement, i.e. a SQL instruction not returning any data
 	 * @param sql (String) The SQL instruction to run.
