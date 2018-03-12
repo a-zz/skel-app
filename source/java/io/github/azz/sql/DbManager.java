@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import io.github.azz.config.LocalConfiguration;
 import io.github.azz.logging.AppLogger;
 import io.github.azz.sql.rdbms.RdbmsSupport;
-import io.github.azz.sql.rdbms.RdbmsSupport.enumDatabaseEngines;
 
 /**
  * Database management
@@ -24,7 +23,7 @@ public class DbManager {
 	private static String usr;
 	private static String pwd;
 	
-	private static enumDatabaseEngines databaseEngine;
+	private static RdbmsSupport.EnumDatabaseEngines databaseEngine;
 	
 	/**
 	 * Initializes the database manager facility, by reading the connection parameters from the local configuration.
@@ -51,9 +50,9 @@ public class DbManager {
 	
 	/**
 	 * Returns the database engine used.
-	 * @return (enumDatabaseEngine)
+	 * @return (RdbmsSupport.enumDatabaseEngines)
 	 */
-	public static enumDatabaseEngines getDatabaseEngine() {
+	public static RdbmsSupport.EnumDatabaseEngines getDatabaseEngine() {
 		
 		return databaseEngine;
 	}
@@ -69,5 +68,21 @@ public class DbManager {
 		
 		return DriverManager.getConnection(url, usr, pwd);
 	} 
+	
+	/**
+	 * Shuts down the database manager facility
+	 * @throws SQLException
+	 */
+	public static void shutdown() {
+	
+		AppLogger logger = new AppLogger(DbManager.class);
+		try {
+			RdbmsSupport.shutdownEngine(databaseEngine);
+		}
+		catch(Exception e) {
+				logger.error("Couldn't shutdown the database engine: " + e.getMessage());
+		}
+		logger.debug("Embedded database engine shutdown!");					
+	}	
 }
 /* ****************************************************************************************************************** */

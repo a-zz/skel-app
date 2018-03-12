@@ -63,7 +63,7 @@ public class SqlConnection {
 		conn = DbManager.getConnection();
 		conn.setAutoCommit(autoCommit);
 		conn.setTransactionIsolation(isolationLevelMap.get(isolationLevel).intValue());
-		RdbmsSupport.checkIsolationLevelSupport(isolationLevel);
+		RdbmsSupport.checkIsolationLevelSupport(DbManager.getDatabaseEngine(), isolationLevel);
 		openConnTable.put(connSerial, this);
 		logger.trace("Got new SQL connection #" + connSerial);
 	}

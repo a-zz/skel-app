@@ -18,11 +18,12 @@ import io.github.azz.sql.rdbms.RdbmsSupport;
 import io.github.azz.util.Scheduler;
 
 /**
- * Performs initial configuration at startup. So far:
+ * Performs initial configuration at startup (as well as orderly shutdown). So far:
  * <ol>
  * <li>Initialize the logging utility (from WEB-INF/log4j2.xml file)</li>
  * <li>Initialize the local configuration container (from WEB-INF/local.properties file)</li>
- * <li>Initialize the database management facility</li>
+ * <li>Initialize (and shutdown) the database management facility</li>
+ * <li>Initialize (and shutdown) the task scheduler</li>
  * </ol>
  * Execution is launched at boot as a web application listener, as defined in WEB-INF/web.xml
  * @author a-zz
@@ -115,6 +116,9 @@ public class BootConfigurator  implements ServletContextListener {
 		
 		// Shutdown task scheduler
 		Scheduler.shutdown();
+		
+		// Shutdown the database management facility
+		DbManager.shutdown();
 		
 		AppLogger logger = new AppLogger(BootConfigurator.class);
 		logger.info(":_( --> " + sce.getServletContext().getServletContextName() + " shut down! <-- )_:");

@@ -8,9 +8,9 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import io.github.azz.config.LocalConfiguration;
 import io.github.azz.logging.AppLogger;
 import io.github.azz.sql.DaInterface;
-import io.github.azz.sql.DbManager;
 import io.github.azz.sql.SqlTransaction;
 import io.github.azz.util.Reflection;
 
@@ -25,7 +25,7 @@ public class RdbmsSupport {
 	/**
 	 * Supported database engines
 	 */
-	public enum enumDatabaseEngines { HSQLDB };
+	public enum EnumDatabaseEngines { HSQLDB };
 	
 	/**
 	 * Checks wether current database engine is fully supported by application code. This is as simple as checking that
@@ -42,7 +42,7 @@ public class RdbmsSupport {
 	 * @throws UnsupportedOperationException
 	 */
 	@SuppressWarnings({ "rawtypes" })
-	public static void checkImplementation(enumDatabaseEngines databaseEngine, boolean enforce) 
+	public static void checkImplementation(EnumDatabaseEngines databaseEngine, boolean enforce) 
 			throws UnsupportedOperationException, IOException, ClassNotFoundException {
 		
 		// 1. Get interface for running engine
@@ -89,12 +89,12 @@ public class RdbmsSupport {
 	 * @throws ClassNotFoundException
 	 * @throws UnsupportedOperationException
 	 */
-	public static enumDatabaseEngines registerDriver(String url) throws ClassNotFoundException, UnsupportedOperationException {
+	public static EnumDatabaseEngines registerDriver(String url) throws ClassNotFoundException, UnsupportedOperationException {
 		
 		if(url.startsWith("jdbc:hsqldb")) {
 			Class.forName("org.hsqldb.jdbcDriver");
 			logger.debug("HSQLDB JDBC driver loaded");
-			return enumDatabaseEngines.HSQLDB;
+			return EnumDatabaseEngines.HSQLDB;
 		}
 		else
 			throw new UnsupportedOperationException("Database support not implemented for URL: " + url);
@@ -106,7 +106,7 @@ public class RdbmsSupport {
 	 * @return (Class)
 	 */
 	@SuppressWarnings("rawtypes")
-	public static Class getEngineInterface(enumDatabaseEngines databaseEngine) {
+	public static Class getEngineInterface(EnumDatabaseEngines databaseEngine) {
 		
 		String packageName = RdbmsSupport.class.getPackage().getName();
 		String interfaceName = packageName + "." + databaseEngine + "Interface";
@@ -133,10 +133,10 @@ public class RdbmsSupport {
 	 * @throws SQLException if the level choosen is definitely not supported by the engine. Otherwise it returns
 	 * 	quietly, maybe logging some message.
 	 */
-	public static void checkIsolationLevelSupport(SqlTransaction.EnumIsolationLevels isolationLevel) 
-			throws SQLException {
+	public static void checkIsolationLevelSupport(EnumDatabaseEngines databaseEngine,
+			SqlTransaction.EnumIsolationLevels isolationLevel) throws SQLException {
 		
-		switch(DbManager.getDatabaseEngine()) {
+		switch(databaseEngine) {
 		case HSQLDB:
 			switch(isolationLevel) {
 			case READ_COMMITTED:
@@ -149,6 +149,34 @@ public class RdbmsSupport {
 				break;
 			default:
 				// All fine, nothing to say
+			}
+		}
+	}
+	
+	/**
+	 * Shuts down the database engine. This is only needed for embedded databases (e.g. HSQLDB); otherwise, does nothing
+	 * @param databaseEngine (EnumDatabaseEngines) The database engine to shut down.
+	 * @throws SQLException
+	 */
+	public static void shutdownEngine(EnumDatabaseEngines databaseEngine) throws SQLException {
+		
+		switch(databaseEngine) {
+		case HSQLDB:
+			SqlTransaction t = null;
+			try {
+				t = new SqlTransaction(true);
+				boolean compactDatabase = false;
+				try {
+					compactDatabase = LocalConfiguration.getProperty("db.hsqldb.compactOnShutdown").equals("y"); 
+				}
+				catch(IOException e) {
+					// Do nothing, won't compact
+				}
+				t.statement("shutdown" + (compactDatabase?" compact":""));			
+			}
+			finally {
+				t.close();				
+				
 			}
 		}
 	}
