@@ -31,16 +31,17 @@ public interface DaInterface {
 		
 		try {
 			Class engineInterface = RdbmsSupport.getEngineInterface(DbManager.getDatabaseEngine());
-			String packageName = clazz.getPackage().getName();
-			packageName = packageName + ".da";
+			String daPackageName = clazz.getPackage().getName();
+			daPackageName = daPackageName + ".da";
 	        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();;
-	        Enumeration<URL> resources = classLoader.getResources(packageName.replace('.', '/'));
+	        Enumeration<URL> resources = classLoader.getResources(daPackageName.replace('.', '/'));
 	        File dataAccessClassDirectory = new File(resources.nextElement().getFile());
 	        File[] classFiles =  dataAccessClassDirectory.listFiles();
 	        for(int i = 0; i<classFiles.length; i++) {
-	        	Class classFound = Class.forName(packageName + "." +
-	        			(classFiles[i].getName().substring(0, classFiles[i].getName().length()-6)));
-	        	if(DaInterface.class.isAssignableFrom(classFound) &&
+	        	String classFoundName = classFiles[i].getName().substring(0, classFiles[i].getName().length()-6); 
+	        	Class classFound = Class.forName(daPackageName + "." + classFoundName);
+	        	if(classFoundName.startsWith(clazz.getName().substring(clazz.getPackage().getName().length()+1)) &&
+	        			DaInterface.class.isAssignableFrom(classFound) &&	        			
 	        			engineInterface.isAssignableFrom(classFound))
 	        		return classFound;
 	        }
