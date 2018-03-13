@@ -11,6 +11,7 @@ import java.sql.SQLException;
 
 import io.github.azz.config.LocalConfiguration;
 import io.github.azz.logging.AppLogger;
+import io.github.azz.sql.da.DbManagerDaInterface;
 import io.github.azz.sql.rdbms.RdbmsSupport;
 
 /**
@@ -21,9 +22,11 @@ public class DbManager {
 	
 	private static String url;
 	private static String usr;
-	private static String pwd;
-	
+	private static String pwd;	
 	private static RdbmsSupport.EnumDatabaseEngines databaseEngine;
+	
+	private static AppLogger logger = new AppLogger(DbManager.class);
+	private static DbManagerDaInterface dao;
 	
 	/**
 	 * Initializes the database manager facility, by reading the connection parameters from the local configuration.
@@ -33,14 +36,19 @@ public class DbManager {
 	public static void initialize() throws SQLException {
 		
 		try {
+			logger = new AppLogger(DbManager.class);
+			
 			url = LocalConfiguration.getProperty("db.url");
 			usr = LocalConfiguration.getProperty("db.usr");
 			pwd = LocalConfiguration.getProperty("db.pwd");
 			
-			databaseEngine = RdbmsSupport.registerDriver(url);
-			DbUpdater.checkVersionAndUpdate(true);
+			databaseEngine = RdbmsSupport.registerDriver(url);			
+			dao = (DbManagerDaInterface)DaInterface.getImplClassFor(DbManager.class).newInstance();
 			
-			AppLogger logger = new AppLogger(DbManager.class);
+			if(!dao.checkDbTimeSync())
+				throw new SQLException("Database time out of sync with application server");
+			DbUpdater.checkVersionAndUpdate(true);
+						
 			logger.debug("Database management facility initialized!");
 		}
 		catch(Exception e) {
@@ -77,7 +85,7 @@ public class DbManager {
 	
 		AppLogger logger = new AppLogger(DbManager.class);
 		try {
-			RdbmsSupport.shutdownEngine(databaseEngine);
+			dao.shutdownEngine();
 		}
 		catch(Exception e) {
 				logger.error("Couldn't shut down the database management facility: " + e.getMessage());

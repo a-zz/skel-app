@@ -23,6 +23,7 @@ import io.github.azz.logging.AppLogger;
  */
 public class SqlTransaction {
 
+	private String descriptor;
 	private SqlConnection con;	
 	private int n;
 	private AppLogger logger;
@@ -31,7 +32,7 @@ public class SqlTransaction {
 	StopWatch watch = new StopWatch();
 	
 	/**
-	 * Isolation levels for transactions, according to following table:
+	 * Isolation levels for transactions, from lower to higher:
 	 * <pre>
 	 * Isolation Level  Dirty Read  Nonrepeatable Read  Phantom Read
 	 * READ UNCOMMITTED Permitted   Permitted           Permitted
@@ -46,6 +47,10 @@ public class SqlTransaction {
 	 * <li>Phantom read: a row selected once remain unchanged until the end of transaction; however, the rows
 	 * 		returned by the select may change because of newly-added rows.</li>
 	 * </ul>
+	 * There's not too much use for READ UNCOMMITED, as data integrity can be compromised. Beside that, lower isolation
+	 * 	levels provide higher performance, lower latency and less chance of concurrent transaction interlocking. Thus,
+	 * 	the lower level meeting the bussiness-rule requirements for an operation should be chosen. Default level 
+	 * 	(constructors SqlTransaction(String) and SqlTransaction(String, boolean)) is READ COMMITED.
 	 */
 	public enum EnumIsolationLevels {
 		READ_UNCOMMITTED, 
@@ -54,28 +59,51 @@ public class SqlTransaction {
 		SERIALIZABLE };
 	
 	/**
-	 * Constructor: starts a new SQL transaction with isolation level "REPEATABLE READ".
-	 * @param autoCommit (boolean) Sets the transaction's autocommit mode
+	 * Default constructor: starts a new SQL transaction with no autocommit and isolation level READ COMMITED.
+	 * @param descriptor (String) A descriptive text for logging purposes 
 	 * @throws SQLException
 	 */
-	public SqlTransaction(boolean autoCommit) throws SQLException {
+	public SqlTransaction(String descriptor) throws SQLException {
 		
-		this(autoCommit, EnumIsolationLevels.REPEATABLE_READ);
+		this(descriptor, false, EnumIsolationLevels.READ_COMMITTED);
 	}
 	
 	/**
+	 * Constructor: starts a new SQL transaction with isolation level READ COMMITED.
+	 * @param descriptor (String) A descriptive text for logging purposes
+	 * @param autoCommit (boolean) Sets the transaction's autocommit mode
+	 * @throws SQLException
+	 */
+	public SqlTransaction(String descriptor, boolean autoCommit) throws SQLException {
+		
+		this(descriptor, autoCommit, EnumIsolationLevels.READ_COMMITTED);
+	}
+	
+	/**
+	 * Constructor: starts a new SQL transaction with no autocommit
+	 * @param descriptor (String) A descriptive text for logging purposes
+	 * @param (EnumIsolationLevels) Isolation level for the new transaction
+	 * @throws SQLException
+	 */
+	public SqlTransaction(String descriptor, EnumIsolationLevels isolationLevel) throws SQLException {
+		
+		this(descriptor, false, isolationLevel);
+	}	
+	
+	/**
 	 * Constructor: starts a new SQL transaction
+	 * @param descriptor (String) A descriptive text for logging purposes
 	 * @param autoCommit (boolean) Sets the transaction's autocommit mode
 	 * @param (EnumIsolationLevels) Isolation level for the new transaction
 	 * @throws SQLException
 	 */
-	public SqlTransaction(boolean autoCommit, EnumIsolationLevels isolationLevel) throws SQLException {
+	public SqlTransaction(String descriptor, boolean autoCommit, EnumIsolationLevels isolationLevel) throws SQLException {
 		
 		this.logger = new AppLogger(this.getClass());
-		con = new SqlConnection(autoCommit);	
+		this.descriptor = descriptor;
+		con = new SqlConnection(autoCommit, isolationLevel);	
 		n = con.getConnSerial();
-		logger.sql("Transaction #" + n + 
-					": STARTED (autocommit: " + autoCommit + ")");
+		logger.sql(this.toString() + ": STARTED (autocommit: " + autoCommit + ")");
 		if(!autoCommit)
 			sqlInstructions = new ArrayList<String>();
 	}
@@ -97,8 +125,7 @@ public class SqlTransaction {
 			int rows = st.executeUpdate(sql); 
 			watch.stop();
 			if(con.getConnection().getAutoCommit())
-				logger.sql("Transaction #" + n + 
-						": -> " + sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
+				logger.sql(this.toString() + ": -> " + sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
 			else
 				sqlInstructions.add(sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
 			
@@ -116,8 +143,8 @@ public class SqlTransaction {
 				}
 			}
 			catch(SQLException e) {
-				logger.warn("Check resource usage: transaction #" + n + 
-						": a Statement object couldn't be closed: " + e.getMessage());
+				logger.warn(this.toString() + ": check resource usage: " +  
+						"a Statement object couldn't be closed: " + e.getMessage());
 			}
 		}
 	}
@@ -141,8 +168,7 @@ public class SqlTransaction {
 			int rows = ps.executeUpdate(); 
 			watch.stop();
 			if(con.getConnection().getAutoCommit())
-				logger.sql("Transaction #" + n + 
-						": -> " + sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
+				logger.sql(this.toString() + ": -> " + sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
 			else
 				sqlInstructions.add(sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
 			
@@ -160,8 +186,8 @@ public class SqlTransaction {
 				}
 			}
 			catch(SQLException e) {
-				logger.warn("Check resource usage: transaction #" + n + 
-						": a PreparedStatement object couldn't be closed: " + e.getMessage());
+				logger.warn(this.toString() + ": check resource usage: " + 
+						"a PreparedStatement object couldn't be closed: " + e.getMessage());
 			}
 		}
 	}
@@ -191,8 +217,7 @@ public class SqlTransaction {
 				rs.beforeFirst();
 			}
 			if(con.getConnection().getAutoCommit())
-				logger.sql("Transaction #" + n + 
-						": -> " + sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
+				logger.sql(this.toString() + ": -> " + sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
 			else
 				sqlInstructions.add(sql + "; (" + rows + " rows; " + watch.getTime() + "ms)");
 		}
@@ -206,8 +231,8 @@ public class SqlTransaction {
 				}
 			}
 			catch(SQLException ee) {
-				logger.warn("Check resource usage: transaction #" + n + 
-						": a ResultSet object couldn't be closed: " + e.getMessage());
+				logger.warn(this.toString() + ": Check resource usage: " + 
+						"a ResultSet object couldn't be closed: " + e.getMessage());
 			}
 			try {
 				if(st!=null)
@@ -217,8 +242,8 @@ public class SqlTransaction {
 				}
 			}
 			catch(SQLException ee) {
-				logger.warn("Check resource usage: transaction #" + n + 
-						": a Statement object couldn't be closed: " + e.getMessage());
+				logger.warn(this.toString() + ": check resource usage: " + 
+						"a Statement object couldn't be closed: " + e.getMessage());
 			}
 			throw e;
 		}
@@ -239,8 +264,7 @@ public class SqlTransaction {
 				return;
 			
 			con.getConnection().commit();
-			logger.sql("Transaction #" + n + 
-					": COMMIT \\o/" + listSqlInstructions(true));
+			logger.sql(this.toString() + ": COMMIT \\o/" + listSqlInstructions(true));
 		}
 		catch(SQLException e) {
 			throw e;
@@ -258,8 +282,7 @@ public class SqlTransaction {
 				return;		
 			
 			con.getConnection().rollback();
-			logger.sql("Transaction #" + n + 
-					": ROLLBACK :_(" + listSqlInstructions(true));
+			logger.sql(this.toString() + ": ROLLBACK :_(" + listSqlInstructions(true));
 		}
 		catch(SQLException e) {
 			throw e;
@@ -281,13 +304,16 @@ public class SqlTransaction {
 			closeRelatedObjects();
 			con.close();
 			con = null;
-			logger.sql("Transaction #" + n +  
-					": CLOSED");
+			logger.sql(this.toString() + ": CLOSED");
 		}
 		catch(Exception e) {
-			logger.error("transaction #" + n + 
-						  ": COULDN'T BE CLOSED: " + e.getMessage());
+			logger.error(this.toString() + ": COULDN'T BE CLOSED: " + e.getMessage());
 		}
+	}
+	
+	public String toString() {
+		
+		return "Transaction #" + n +" (" + descriptor + ")";
 	}
 	
 	private void prepare(PreparedStatement ps, ArrayList<Object> values) 
@@ -353,8 +379,7 @@ public class SqlTransaction {
 	protected void finalize() throws Throwable {
 
 		if(con!=null)
-			logger.warn("CHeck resource usage: transaction #" + n + 
-					" was automatically purged.");
+			logger.warn(this.toString() + ": check resource usage: was automatically purged.");
 		super.finalize();
 	}
 

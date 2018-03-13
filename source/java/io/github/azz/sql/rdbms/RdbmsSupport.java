@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import io.github.azz.config.LocalConfiguration;
 import io.github.azz.logging.AppLogger;
 import io.github.azz.sql.DaInterface;
 import io.github.azz.sql.SqlTransaction;
@@ -41,7 +40,7 @@ public class RdbmsSupport {
 	 *  would raise an...
 	 * @throws UnsupportedOperationException
 	 */
-	@SuppressWarnings({ "rawtypes" })
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void checkImplementation(EnumDatabaseEngines databaseEngine, boolean enforce) 
 			throws UnsupportedOperationException, IOException, ClassNotFoundException {
 		
@@ -55,7 +54,7 @@ public class RdbmsSupport {
 		ArrayList<String> daInterfacesList = new ArrayList<String>();
 		Reflection.scanPackage(basePackage, true, daInterfacesList, DaInterface.class.getName());
 		
-		// 3. Check wether every interface found before has an implementing class also implementing the selcted engine 
+		// 3. Check whether every interface found before has an implementing class also implementing the selected engine 
 		//	interface. Implementations are to be found in the same package.
 		String implMissing = "";
 		for(String className : daInterfacesList) {
@@ -64,14 +63,21 @@ public class RdbmsSupport {
 				ArrayList<String> implClassesInPackage = new ArrayList<String>();
 				String classFoundPackageName = classFound.getPackage().getName();
 				Reflection.scanPackage(classFoundPackageName, false, implClassesInPackage, engineInterface.getName());
-				if(implClassesInPackage.size()!=1)
-					implMissing += className;
+				boolean missing = true;
+				for(String implClass : implClassesInPackage) {
+					if(classFound.isAssignableFrom(Class.forName(implClass))) {
+						missing = false;
+						break;
+					}
+				}
+				if(missing)
+					implMissing += className + " ";
 			}
 		}
 		
 		// 4. All done
 		if(!implMissing.equals("")) {
-			String message = "Missing " + databaseEngine + "implementation for data access interfaces: " + implMissing;
+			String message = "Missing " + databaseEngine + " implementation for data access interfaces: " + implMissing;
 			if(enforce)
 				throw new UnsupportedOperationException(message);
 			else
@@ -89,7 +95,8 @@ public class RdbmsSupport {
 	 * @throws ClassNotFoundException
 	 * @throws UnsupportedOperationException
 	 */
-	public static EnumDatabaseEngines registerDriver(String url) throws ClassNotFoundException, UnsupportedOperationException {
+	public static EnumDatabaseEngines registerDriver(String url) 
+			throws ClassNotFoundException, UnsupportedOperationException {
 		
 		if(url.startsWith("jdbc:hsqldb")) {
 			Class.forName("org.hsqldb.jdbcDriver");
@@ -139,7 +146,7 @@ public class RdbmsSupport {
 		switch(databaseEngine) {
 		case HSQLDB:
 			switch(isolationLevel) {
-			case READ_COMMITTED:
+			case READ_UNCOMMITTED:
 				logger.debug("In HSQLDB v2.x or higher, transaction level READ UNCOMMITED " +
 						"is upgraded to READ COMMITED");
 				break;
@@ -149,34 +156,6 @@ public class RdbmsSupport {
 				break;
 			default:
 				// All fine, nothing to say
-			}
-		}
-	}
-	
-	/**
-	 * Shuts down the database engine. This is only needed for embedded databases (e.g. HSQLDB); otherwise, does nothing
-	 * @param databaseEngine (EnumDatabaseEngines) The database engine to shut down.
-	 * @throws SQLException
-	 */
-	public static void shutdownEngine(EnumDatabaseEngines databaseEngine) throws SQLException {
-		
-		switch(databaseEngine) {
-		case HSQLDB:
-			SqlTransaction t = null;
-			try {
-				t = new SqlTransaction(true);
-				boolean compactDatabase = false;
-				try {
-					compactDatabase = LocalConfiguration.getProperty("db.hsqldb.compactOnShutdown").equals("y"); 
-				}
-				catch(IOException e) {
-					// Do nothing, won't compact
-				}
-				t.statement("shutdown" + (compactDatabase?" compact":""));			
-			}
-			finally {
-				t.close();				
-				
 			}
 		}
 	}

@@ -38,17 +38,6 @@ public class SqlConnection {
 		isolationLevelMap.put(EnumIsolationLevels.REPEATABLE_READ,	Connection.TRANSACTION_REPEATABLE_READ);
 		isolationLevelMap.put(EnumIsolationLevels.SERIALIZABLE, 	Connection.TRANSACTION_SERIALIZABLE);
 	}
-	
-	/**
-	 * Get a new database connection and add it to the open connection table, so it can be tracked along its lifecycle.
-	 * 	Isolation level for the related transactions is "REPEATABLE READ".
-	 * @param autoCommit (boolean) Set the autocommit mode for the connection.
-	 * @throws SQLException
-	 */
-	public SqlConnection(boolean autoCommit) throws SQLException {
-		
-		this(autoCommit, SqlTransaction.EnumIsolationLevels.REPEATABLE_READ);
-	}
 
 	/**
 	 * Get a new database connection and add it to the open connection table, so it can be tracked along its lifecycle.

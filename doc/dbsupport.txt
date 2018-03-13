@@ -65,8 +65,10 @@ Figure out we're implementing a new mypackage.MyClass data access consumer
 class. We need to provide:
 
   * mypackage.da.MyClassDaInterface. Data access interface for MyClass
-  	exteding DaInterface. Must define those methods required in implementation
-  	classes.
+  	extending DaInterface; must define those methods required in implementation
+  	classes. It must be emphasized that the interface name for "MyClass"
+  	must be literally named "MyClassDaInterface", as some other interfaces for
+  	some other consumer classes may be placed in the .da package.  
   	
   * A mypackage.da.MyCassDATABASE_ENGINE class implementing MyClassDaInterface
   	for every one of the database engines defined in 
