@@ -24,7 +24,7 @@ public class AppConfigurationHSQLDB implements AppConfigurationDaInterface, HSQL
 		SqlTransaction t = null;
 		
 		try {
-			t = new SqlTransaction(true);
+			t = new SqlTransaction("get app property", true);
 			return getProperty(key, t);
 		}
 		catch(SQLException e) {
@@ -51,7 +51,7 @@ public class AppConfigurationHSQLDB implements AppConfigurationDaInterface, HSQL
 		SqlTransaction t = null;
 		
 		try {
-			t = new SqlTransaction(true);
+			t = new SqlTransaction("set app property", true);
 			setProperty(key, value, t);
 		}
 		catch(SQLException e) {
@@ -88,7 +88,7 @@ public class AppConfigurationHSQLDB implements AppConfigurationDaInterface, HSQL
 		SqlTransaction t = null;
 			
 		try {
-			t = new SqlTransaction(true);
+			t = new SqlTransaction("delete app property", true);
 			deleteProperty(key, t);
 		}
 		catch(SQLException e) {

@@ -139,7 +139,7 @@ public class RdbmsSupport {
 		switch(databaseEngine) {
 		case HSQLDB:
 			switch(isolationLevel) {
-			case READ_COMMITTED:
+			case READ_UNCOMMITTED:
 				logger.debug("In HSQLDB v2.x or higher, transaction level READ UNCOMMITED " +
 						"is upgraded to READ COMMITED");
 				break;
@@ -164,7 +164,7 @@ public class RdbmsSupport {
 		case HSQLDB:
 			SqlTransaction t = null;
 			try {
-				t = new SqlTransaction(true);
+				t = new SqlTransaction("hsqldb engine shutdown", true);
 				boolean compactDatabase = false;
 				try {
 					compactDatabase = LocalConfiguration.getProperty("db.hsqldb.compactOnShutdown").equals("y"); 

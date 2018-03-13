@@ -23,7 +23,7 @@ public class DbUpdaterHSQLDB implements DbUpdaterDaInterface, HSQLDBInterface {
 		SqlTransaction t=null;
 		
 		try {
-			t = new SqlTransaction(true);
+			t = new SqlTransaction("get current db version", true);
 			String sql = "select max(VERSION) as VERSION from DBVERSION";
 			ResultSet rs = t.query(sql);
 			rs.next();
@@ -43,7 +43,7 @@ public class DbUpdaterHSQLDB implements DbUpdaterDaInterface, HSQLDBInterface {
 		SqlTransaction t = null;
 
 		try {
-			t = new SqlTransaction(true);
+			t = new SqlTransaction("db update to version 0", true);
 			t.statement("create table DBVERSION " +
 					"(ID integer identity primary key, " +
 					"VERSION integer not null, " +
