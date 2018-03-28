@@ -56,11 +56,18 @@ public class LocalConfiguration {
 	
 	private static void checkTimeStampAndReload() throws FileNotFoundException, IOException {
 		
-		if(propertiesFile.lastModified()>propertiesFileTimeStamp) {			
-			p.load(new FileInputStream(propertiesFile));
-			propertiesFileTimeStamp = propertiesFile.lastModified();
-			AppLogger logger = new AppLogger(LocalConfiguration.class);
-			logger.debug("Local configuration reloaded (file modified on disk)");
+		AppLogger logger = new AppLogger(LocalConfiguration.class);
+		
+		try {
+			if(propertiesFile.lastModified()>propertiesFileTimeStamp) {			
+				p.load(new FileInputStream(propertiesFile));
+				propertiesFileTimeStamp = propertiesFile.lastModified();				
+				logger.debug("Local configuration reloaded (file modified on disk)");
+			}
+		}
+		catch(NullPointerException e) {
+			logger.error("Local configuration not initialized");
+			throw e;
 		}
 	}
 
