@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Serializable;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.KeyStore.SecretKeyEntry;
@@ -17,6 +19,9 @@ import java.security.KeyStoreException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -340,6 +345,46 @@ public class PkiUtil {
 		result.load(new FileInputStream(keyStoreFile), password);
 		logger.trace("Key store loaded from file " + keyStoreFile);
 		return result;
+	}
+
+	/**
+	 * RSA signature of a Java object.
+	 * @param data (Serializable) The object to be signed. 
+	 * @param key (PrivateKey) The private key.
+	 * @param hashAlg (EnumHashAlg) Hash algorithm to be used.
+	 * @return (String) Base64 representation of the signature.
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeyException
+	 * @throws SignatureException
+	 * @throws IOException
+	 */
+	public static String rsaSignObject(Serializable data, PrivateKey key, EnumHashAlg hashAlg) 
+			throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException {
+		
+		Signature rsa = Signature.getInstance(hashAlg.toString() + "withRSA");
+		rsa.initSign(key);
+		rsa.update(Base64Serializer.serialize(data).getBytes());
+		return Base64Serializer.serialize(rsa.sign());
+	}
+	
+	/**
+	 * Verifies an object RSA signature
+	 * @param data (Serializable) The object to be signed. 
+	 * @param signature (String) Base64 representation of the signature.
+	 * @param hashAlg (EnumHashAlg) Hash algorithm used.
+	 * @param key (PublicKey) The public key related to the private key used to sign.
+	 * @return (boolean) True if the signature is fine.
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeyException
+	 * @throws SignatureException
+	 */
+	public static boolean rsaVerifyObjectSignature(Serializable data, String signature, EnumHashAlg hashAlg, 
+			PublicKey key) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException {
+		
+		Signature rsa = Signature.getInstance(hashAlg.toString() + "withRSA");
+		rsa.initVerify(key);
+		rsa.update(Base64Serializer.serialize(data).getBytes());
+		return rsa.verify(Base64Serializer.deserializeAsContentByte(signature));
 	}
 }
 /* ****************************************************************************************************************** */
