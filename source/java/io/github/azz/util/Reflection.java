@@ -62,26 +62,23 @@ public class Reflection {
 					continue;
 				}
 				
-				boolean addClass = true;
-							
 				// Checking super class filter, if applicable
 				if(superClassNameFilter!=null) {
 					if(className.equals(superClassNameFilter))
 						continue;
 					else {															
 						if(!superClassFilter.isAssignableFrom(classFound))
-							addClass = false;
+							continue;
 					}
 				}
 				
 				// Checking annotation filter, if applicable
 				if(annotationClassFilter!=null) {
 					if(classFound.getAnnotation(annotationClassFilter)==null)
-						addClass = false;
+						continue;
 				}
 
-				if(addClass)
-					foundClassesList.add(className);
+				foundClassesList.add(className);
 			}
 		}
 	}
