@@ -52,7 +52,7 @@ public class RdbmsSupport {
 		String basePackage = packageName.substring(0, packageName.lastIndexOf("."));
 		basePackage = basePackage.substring(0, basePackage.lastIndexOf("."));		
 		ArrayList<String> daInterfacesList = new ArrayList<String>();
-		Reflection.scanPackage(basePackage, true, daInterfacesList, DaInterface.class.getName());
+		Reflection.scanPackage(basePackage, true, daInterfacesList, DaInterface.class.getName(), null);
 		
 		// 3. Check whether every interface found before has an implementing class also implementing the selected engine 
 		//	interface. Implementations are to be found in the same package.
@@ -62,7 +62,8 @@ public class RdbmsSupport {
 			if(classFound.isInterface()) {
 				ArrayList<String> implClassesInPackage = new ArrayList<String>();
 				String classFoundPackageName = classFound.getPackage().getName();
-				Reflection.scanPackage(classFoundPackageName, false, implClassesInPackage, engineInterface.getName());
+				Reflection.scanPackage(classFoundPackageName, false, implClassesInPackage, 
+						engineInterface.getName(), null);
 				boolean missing = true;
 				for(String implClass : implClassesInPackage) {
 					if(classFound.isAssignableFrom(Class.forName(implClass))) {
