@@ -1,3 +1,8 @@
+/* ****************************************************************************************************************** *
+ * Ui.java                                                                                                            *
+ * github.com/a-zz, 2018                                                                                              *
+ * ****************************************************************************************************************** */
+
 package io.github.azz.ui.client;
 
 import com.google.gwt.core.client.EntryPoint;
@@ -19,7 +24,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import io.github.azz.ui.shared.FieldVerifier;
 
 /**
- * Entry point classes define <code>onModuleLoad()</code>.
+ * Sample entrypoint module (from GWT SDK)
+ * @author GWT SDK
  */
 public class Ui implements EntryPoint {
 
@@ -149,3 +155,4 @@ public class Ui implements EntryPoint {
 		nameField.addKeyUpHandler(handler);
 	}
 }
+/* ****************************************************************************************************************** */

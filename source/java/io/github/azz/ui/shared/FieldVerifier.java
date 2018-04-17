@@ -1,3 +1,8 @@
+/* ****************************************************************************************************************** *
+ * FieldVerifier.java                                                                                                 *
+ * github.com/a-zz, 2018                                                                                              *
+ * ****************************************************************************************************************** */
+
 package io.github.azz.ui.shared;
 
 /**
@@ -19,6 +24,7 @@ package io.github.azz.ui.shared;
  * system) cannot be compiled into client-side JavaScript. Code that uses native
  * JavaScript (such as Widgets) cannot be run on the server.
  * </p>
+ * @author GWT SDK
  */
 public class FieldVerifier {
 
@@ -41,3 +47,4 @@ public class FieldVerifier {
 		return name.length() > 3;
 	}
 }
+/* ****************************************************************************************************************** */

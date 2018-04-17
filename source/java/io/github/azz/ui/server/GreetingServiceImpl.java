@@ -1,3 +1,8 @@
+/* ****************************************************************************************************************** *
+ * GreetinServiceImpl.java                                                                                            *
+ * github.com/a-zz, 2018                                                                                              *
+ * ****************************************************************************************************************** */
+
 package io.github.azz.ui.server;
 
 import io.github.azz.logging.AppLogger;
@@ -6,7 +11,8 @@ import io.github.azz.ui.shared.FieldVerifier;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
- * The server-side implementation of the RPC service.
+ * Sample RPC service (from GWT SDK)
+ * @author GWT SDK
  */
 @SuppressWarnings("serial")
 public class GreetingServiceImpl extends RemoteServiceServlet implements GreetingService {
@@ -57,3 +63,4 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements Greetin
 		return html.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 	}
 }
+/* ****************************************************************************************************************** */
