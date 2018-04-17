@@ -10,6 +10,11 @@
 
 * Designed for quick & dirty (while coherent) deployments.
 
+* GWT UI support. Please consider that builtin UI support is the very basic; in
+	order to get full advantage of GWT, a full SDK should be downloaded (from
+	http://www.gwtproject.org/download.html) and the required JARs added to 
+	the project.
+
 * Embedded HSQLDB database with connection tracking, transaction support and 
     autoversioning. Data access is in fact abstracted, so support for other 
     database engines can (hopefully) be easily implemented.

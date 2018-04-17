@@ -1,17 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <project name="skel-app" default="deployable" basedir=".">
 	<description>
     	Basic application layout for personal projects
-  	</description>
+  	</description>	
 	
-	<!-- Global properties -->
+	<!-- ## Global properties ############################################## -->
 	<property name="deploy.name" value="skel-app"/>
 	<property name="src.web" location="source/web" />
 	<property name="src.java" location="source/java" />
 	<property name="lib" location="lib"/>
 	<property name="config" location="config"/>
 	<property name="deployable" location="deployable/${deploy.name}"/>
-	
-	<!-- Build tasks -->
+	<property name="gwt.args" value="" />
+  	<path id="project.build.path">  
+		<pathelement location="${lib}/commons-lang3-3.7.jar"/>		
+		<pathelement location="${lib}/log4j-core-2.10.0.jar"/>    	
+    	<pathelement location="${lib}/gwt-dev-2.8.2.jar"/>
+  		<pathelement location="${lib}/gwt-user-2.8.2.jar"/>
+  		<pathelement location="${lib}/hsqldb-2.4.0.jar"/>
+  		<pathelement location="${lib}/javax.servlet-api-3.1.0.jar"/>
+  		<pathelement location="${lib}/log4j-api-2.10.0.jar"/>
+  	</path>
+
+	<!-- ## Build tasks #################################################### -->
 	<target name="init" description="Initialize...">
 		<tstamp/>
 		<mkdir dir="${deployable}"/>
@@ -23,21 +34,31 @@
 		</copy>
 	</target>
 	
-	<target name="compile" depends="layout" description="Compile sources">
+	<target name="java.compile" depends="layout" 
+		description="Compile Java sources">
 		<mkdir dir="${deployable}/WEB-INF/classes"/>
 		<javac srcdir="${src.java}" destdir="${deployable}/WEB-INF/classes" 
 			includeantruntime="false">
-			<classpath>
-				<pathelement location="${lib}/commons-lang3-3.7.jar"/>
-				<pathelement location="${lib}/hsqldb-2.4.0.jar"/>
-				<pathelement location="${lib}/javax.servlet-api-3.1.0.jar"/>
-				<pathelement location="${lib}/log4j-api-2.10.0.jar"/>
-				<pathelement location="${lib}/log4j-core-2.10.0.jar"/>
-			</classpath>
+			<classpath refid="project.build.path"/>
 		</javac>
 	</target>
+	
+	<target name="gwt.compile" depends="layout" 
+		description="Compile GWT JavaScript">
+		<java failonerror="true" fork="true" 
+			classname="com.google.gwt.dev.Compiler" maxmemory="512m">
+	      <classpath>
+	        <pathelement location="${src.java}"/>
+	        <path refid="project.build.path"/>
+	      </classpath>
+	      <arg line="-war"/>
+	      <arg value="${deployable}"/>
+	      <arg line="${gwt.args}"/>
+	      <arg value="io.github.azz.ui.Ui"/>
+	    </java>
+	</target>
 		
-	<target name="configure" depends="compile" 
+	<target name="configure" depends="java.compile, gwt.compile" 
 		description="Applies persistent configuration">
 		<fail message="Local configuration needed. At least
 config/web/WEB-INF/local.properties should be provided; copy it from
@@ -91,7 +112,9 @@ ${unnecessary.properties}"/>
 		description="Generate the deployable application">
 		<mkdir dir="${deployable}/WEB-INF/lib"/>
 		<copy todir="${deployable}/WEB-INF/lib" >  
-		    <fileset dir="${lib}" includes="*.jar"/>  
+		    <fileset dir="${lib}" includes="*.jar">
+		    	<exclude name="gwt-dev-2.8.2.jar"/>
+		    </fileset>  
 		</copy>
 	</target>
 
@@ -103,4 +126,20 @@ ${unnecessary.properties}"/>
 		description="Create a deployable WAR package">
 		<war basedir="${deployable}" destfile="deployable/${deploy.name}.war"/>
 	</target>
+	
+	<target name="gwt.devmode" depends="deployable" description="Run development
+mode (pass -Dgwt.args=-nosuperDevMode to fallback to classic DevMode)">
+		<java failonerror="true" fork="true" 
+			classname="com.google.gwt.dev.DevMode" maxmemory="1g">
+  			<classpath>
+				<pathelement location="${src.java}"/>
+				<path refid="project.build.path"/>
+  			</classpath>
+	  		<arg line="-war"/>
+	  		<arg value="${deployable}"/>
+			<arg line="${gwt.args}"/>
+			<arg value="-nostartServer"/>
+	  		<arg value="io.github.azz.ui.Ui"/>			
+		</java>
+  	</target>	
 </project>

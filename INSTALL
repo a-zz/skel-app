@@ -25,7 +25,7 @@ In a nutshell, provided we have:
 
 > JDK 1.8, properly referred by the JAVA_HOME environment variable
 > Apache Ant 1.9, properly accesible by the PATH environment variable
-> (prior versions could work but, though not tested)
+  (prior versions could work, though not tested)
 
 we should only need to enter the application directory and run:
 
@@ -53,13 +53,17 @@ The building process goes as this:
 2. layout - Set the application layout. This basically means copying the
 	source/web directory as deployable/skel-app/
 	
-3. compile - Compile Java files to deployable/skel-app/WEB-INF/classes. JARs
-	needed for this are found in the lib/ directory.
+3. java.compile - Compile Java files to deployable/skel-app/WEB-INF/classes. 
+	JARs needed for this are found in the lib/ directory.
 	
-4. configure - Apply persistent configurations to the deployable application.
-	Again, see below.
+4. gwt.compile - Compile GWT Java files to JavaScript, and place them under 
+	deployable/skel-app/ui/. JARs needed for this are found in under lib/. This
+	task is quite slow, but there's not too much we can do about it.
 	
-5. deployable - Final touches to the deployable application. Basically, copying 
+5. configure & postconfigure - Apply persistent configurations to the deployable 
+	application. Again, see below.
+	
+6. deployable - Final touches to the deployable application. Basically, copying 
 	the JARs from lib/ to deployable/skel-app/WEB-INF/lib, and anything 
 	else that should be neccesary.
 	
@@ -108,17 +112,18 @@ directory in deployable/skel-app/. So, in order to deploy it we can:
 i. copy it to the servlet container deployment directory (e.g. 
 $TOMCAT_HOME/webapps/); or
 
-ii. if you're building on the target server, you can just place a symbolic link
+ii. if we're building on the target server, we can just place a symbolic link
 under the servlet container deployment directory to deployable/skel-app/. This 
 works like a charm on Linux, (and Mac Os X, supposedly) and it's our favourite 
 approach; can't tell if it's feasible on Windows.
 
-Alternatively, you can package the deployable directory as a WAR file just 
+Alternatively, we can package the deployable directory as a WAR file just 
 running:
 
   # ant war
   
-That should produce a WAR file under deployable/.
+That should produce a WAR file under deployable/ which can be distributed to
+target machines.
 
 ..:: DEVELOPMENT ENVIRONMENTS ::..
 We currently use Eclipse (Neon 3 or Oxygen) as IDE, so the guidelines below
@@ -128,9 +133,22 @@ need to figure out how these guidelines apply to them.
 Importing the project directory in Eclipse, building it with the builtin Ant 
 tool and debugging it under an embedded server should be quite straightforward.
 Those unwilling to mess with manual setup can rely on the "New Project > Java 
-Project from Existing Ant Buildfile" wizard, which works pretty well.
+Project from Existing Ant Buildfile" wizard, which works pretty well. The 
+server configuration must still be done manually, though.
 
-Anyway, a few things worth saying:
+The concept and building process of GWT makes for some difficulty. Under GWT,
+the client code is written in Java and then compiled to regular JavaScript 
+files at build time (ant gwt.compile task). When coding and debugging the UI, 
+it's a good thing to have changes to the client-code Java files hot-replaced 
+into the accordant JavaScript files; GWT has a "devmode" for that. It's 
+launched by running the class com.google.gwt.dev.DevMode found in gwt-dev.jar.
+The Ant build file has a specific task for that (gwt.devmode) which works fine,
+but has the minor hindrance of preventing other Ant tasks to run. To avoid that,
+under Eclipse, a run/debug configuration may be set up; take the gwt.devmode
+task in build.xml as a reference for the command-line arguments needed. In any
+case, GWT's devmode should be started before launching the Tomcat server.
+
+Some additional things worth saying:
 
 i. An Ant build should be made before configuring the project Build Path in 
 order to populate de deployable directory. Build Path output folder should be
@@ -145,11 +163,14 @@ that. It's advisable to apply changes often in order to avoid local changes
 being destroyed by a later checkout and rebuild. Then, the daily routine should
 be:
 
-  Apply pending changes to source/web/ > Git fetch and checkout > Ant build
+  Apply pending changes to source/web/ > Git fetch and merge > Ant build
 
 iii. A .gitignore file may (should) be used to avoid tracking of the 
 deployable/ and config/ directories. A sample file is provided, which also 
 avoids tracking of Eclipse project settings files and other stuff. It's just
 needed to copy sample.gitignore as .gitignore to have it doing its magic.
 
+iv. After running GWT devmode, a complete build (ant deployable) is needed in
+order to run the Tomcat server without devmode backend (i.e. with generated
+JavaScript files statically compiled).
 --------------------------------------------------------------------------------
