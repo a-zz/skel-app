@@ -22,13 +22,17 @@ public class Reflection {
 	 * @param foundClassesList (ArrayList<String>) A list with the names of classes found.
 	 * @param superClassNameFilter (String) An optional filter: lists only the classes extending or implementing this
 	 * 	class (except for the class itself). No filter applied if null.
+	 * @param annotationClassNameFilter (String) An optional filter: lists only the classes with this annotation. No
+	 * 	filter applied if null.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void scanPackage(String packageName, boolean recurseSubPackages, 
-			ArrayList<String> foundClassesList, String superClassNameFilter) throws ClassNotFoundException {
+			ArrayList<String> foundClassesList, String superClassNameFilter, String annotationClassNameFilter) 
+					throws ClassNotFoundException {
 				
 		Class superClassFilter = superClassNameFilter!=null?Class.forName(superClassNameFilter):null;
-		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		Class annotationClassFilter = annotationClassNameFilter!=null?Class.forName(annotationClassNameFilter):null;
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();				
 		
 		// Loading package as a directory
 		URL packageUrl = classLoader.getResource(packageName.replace(".", "/"));
@@ -42,7 +46,8 @@ public class Reflection {
 			if(item.isDirectory() && recurseSubPackages) {
 				// Recursing into subpackage
 				String subPackageName = packageName + "." + item.getName();
-				scanPackage(subPackageName, recurseSubPackages, foundClassesList, superClassNameFilter);
+				scanPackage(subPackageName, recurseSubPackages, foundClassesList, 
+						superClassNameFilter, annotationClassNameFilter);
 			}
 			else if(item.getName().endsWith(".class")) {
 				// Potential class found
@@ -56,17 +61,24 @@ public class Reflection {
 					// Not really a class, resuming operation
 					continue;
 				}
+				
+				// Checking super class filter, if applicable
 				if(superClassNameFilter!=null) {
 					if(className.equals(superClassNameFilter))
 						continue;
-					else {
-						// Checking super class filter										
-						if(superClassFilter.isAssignableFrom(classFound))
-							foundClassesList.add(className);
+					else {															
+						if(!superClassFilter.isAssignableFrom(classFound))
+							continue;
 					}
 				}
-				else
-					foundClassesList.add(className);
+				
+				// Checking annotation filter, if applicable
+				if(annotationClassFilter!=null) {
+					if(classFound.getAnnotation(annotationClassFilter)==null)
+						continue;
+				}
+
+				foundClassesList.add(className);
 			}
 		}
 	}

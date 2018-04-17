@@ -43,7 +43,8 @@ public class Scheduler {
 		
 		// Looks for schedulable tasks
 		ArrayList<String> foundTaskClassesByName = new ArrayList<String>();
-		Reflection.scanPackage(scheduledTaskPackageName, false, foundTaskClassesByName, Schedulable.class.getName());
+		Reflection.scanPackage(scheduledTaskPackageName, false, foundTaskClassesByName, 
+				Schedulable.class.getName(), null);
 		for(String taskClassName : foundTaskClassesByName) {
 			// Instantiate task and add to timer
 			@SuppressWarnings("unchecked")

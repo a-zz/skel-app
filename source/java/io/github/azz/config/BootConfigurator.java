@@ -38,7 +38,16 @@ public class BootConfigurator  implements ServletContextListener {
 		// 1. Initialize the logging utility
 		AppLogger logger;
 		try {
-			AppLogManager.initialize(sce.getServletContext().getRealPath(log4j2ConfigPath));
+			String greeting = "\n" +
+					"                  _  _\n" +
+					"            ___ (~ )( ~)      _        _\n" +
+					"           /   \\_\\ \\/ /   ___| | _ ___| |     ___ ___ ___\n" +
+					"          |   D_ ]\\ \\/   /  _| |/ / _ \\ | ___ \\_ \\ _ \\ _ \\\n" +
+					"          |   D _]/\\ \\   \\ _ \\   \\  __/ |/__// _ |  _/  _/\n" +
+					"           \\___/ / /\\ \\  /___/_|\\_\\___|_|    \\___| | | |\n" +
+					"                (_ )( _)                         |_| |_| is starting...\n" +
+					"                  ~  ~                                                 ";
+			AppLogManager.initialize(sce.getServletContext().getRealPath(log4j2ConfigPath), greeting);
 			logger = new AppLogger(BootConfigurator.class);
 		}
 		catch(Exception e) {

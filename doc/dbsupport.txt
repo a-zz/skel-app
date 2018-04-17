@@ -57,7 +57,7 @@ The utility function DaInterface.getImplClassFor() helps finding the data access
 implementation class for a certain consumer class and database engine.
 
 Every SQL instruction in the data access implementing classes should be 
-pipelined through the utility class SqlTransaction, that keep tracks of opened 
+pipelined through the utility class SqlTransaction, that keeps track of opened 
 transactions, related objects and data connections currently in use.
 
 ..:: Implementing data access classes ::..

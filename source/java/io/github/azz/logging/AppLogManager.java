@@ -21,15 +21,18 @@ public class AppLogManager {
 	/**
 	 * Initializes the logging utility from a log4j2 configuration file.
 	 * @param configFilePath (String) Path to the configuration file
+	 * @param greeting (String) The first message to be logged (with INFO level). Be creative! (null is ok, though)
 	 * @throws FileNotFoundException
 	 * @throws IOException
 	 */
-	public static void initialize(String configFilePath) throws FileNotFoundException, IOException {
+	public static void initialize(String configFilePath, String greeting) throws FileNotFoundException, IOException {
 		
 		ConfigurationSource source = new ConfigurationSource(new FileInputStream(configFilePath));
 		Configurator.initialize(null, source);
-		AppLogger log = new AppLogger(AppLogManager.class);
-		log.debug("Logging utility initialized!");
+		AppLogger logger = new AppLogger(AppLogManager.class);
+		if(greeting!=null)
+			logger.info(greeting);
+		logger.debug("Logging utility initialized!");
 	}
 }
 /* ****************************************************************************************************************** */
