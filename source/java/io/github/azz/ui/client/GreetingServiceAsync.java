@@ -12,6 +12,6 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * @author GWT SDK
  */
 public interface GreetingServiceAsync {
-	void greetServer(String input, AsyncCallback<String> callback) throws IllegalArgumentException;
+	void greetServer(String input, AsyncCallback<String[]> callback) throws IllegalArgumentException;
 }
 /* ****************************************************************************************************************** */

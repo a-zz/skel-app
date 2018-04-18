@@ -12,6 +12,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -30,26 +31,26 @@ import io.github.azz.ui.shared.FieldVerifier;
 public class Ui implements EntryPoint {
 
 	/**
-	 * The message displayed to the user when the server cannot be reached or
-	 * returns an error.
+	 * (Localizable) messages 
 	 */
-	private static final String SERVER_ERROR = "An error occurred while " +
-			"attempting to contact the server. Please check your network " + "connection and try again.";
+	private UiMessages msg = GWT.create(UiMessages.class);
 
 	/**
 	 * Create a remote service proxy to talk to the server-side Greeting
 	 * service.
 	 */
 	private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
-
+	
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
 
-		final Button sendButton = new Button("Send");
+		Window.setTitle(msg._window_title() + " ");
+		
+		final Button sendButton = new Button(msg.sendBtnTxt());
 		final TextBox nameField = new TextBox();
-		nameField.setText("GWT User");
+		nameField.setText(msg.defaultUserName());
 		final Label errorLabel = new Label();
 
 		// We can add style names to widgets
@@ -57,6 +58,9 @@ public class Ui implements EntryPoint {
 
 		// Add the nameField and sendButton to the RootPanel
 		// Use RootPanel.get() to get the entire body element
+		RootPanel.get("_body_title").add(new Label(msg._body_title()));
+		RootPanel.get("_section_title_1").add(new HTML(msg._section_title_1()));
+		RootPanel.get("nameFieldCaption").add(new Label(msg.nameFldCaption()));
 		RootPanel.get("nameFieldContainer").add(nameField);
 		RootPanel.get("sendButtonContainer").add(sendButton);
 		RootPanel.get("errorLabelContainer").add(errorLabel);
@@ -67,18 +71,18 @@ public class Ui implements EntryPoint {
 
 		// Create the popup dialog box
 		final DialogBox dialogBox = new DialogBox();
-		dialogBox.setText("Remote Procedure Call");
+		dialogBox.setText(msg.dlgTitle());
 		dialogBox.setAnimationEnabled(true);
-		final Button closeButton = new Button("Close");
+		final Button closeButton = new Button(msg.dlgCloseBtnTxt());
 		// We can set the id of a widget by accessing its Element
 		closeButton.getElement().setId("closeButton");
 		final Label textToServerLabel = new Label();
 		final HTML serverResponseLabel = new HTML();
 		VerticalPanel dialogVPanel = new VerticalPanel();
 		dialogVPanel.addStyleName("dialogVPanel");
-		dialogVPanel.add(new HTML("<b>Sending name to the server:</b>"));
+		dialogVPanel.add(new HTML("<b>" + msg.sendingNameToTheServer() + ":</b>"));
 		dialogVPanel.add(textToServerLabel);
-		dialogVPanel.add(new HTML("<br><b>Server replies:</b>"));
+		dialogVPanel.add(new HTML("<br><b>" + msg.serverReplies() + ":</b>")); 
 		dialogVPanel.add(serverResponseLabel);
 		dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
 		dialogVPanel.add(closeButton);
@@ -120,7 +124,7 @@ public class Ui implements EntryPoint {
 				errorLabel.setText("");
 				String textToServer = nameField.getText();
 				if (!FieldVerifier.isValidName(textToServer)) {
-					errorLabel.setText("Please enter at least four characters");
+					errorLabel.setText(msg.atLeast4()); 
 					return;
 				}
 
@@ -128,20 +132,20 @@ public class Ui implements EntryPoint {
 				sendButton.setEnabled(false);
 				textToServerLabel.setText(textToServer);
 				serverResponseLabel.setText("");
-				greetingService.greetServer(textToServer, new AsyncCallback<String>() {
+				greetingService.greetServer(textToServer, new AsyncCallback<String[]>() {
 					public void onFailure(Throwable caught) {
 						// Show the RPC error message to the user
-						dialogBox.setText("Remote Procedure Call - Failure");
+						dialogBox.setText(msg.dlgTitle() + " - " + msg.failure());
 						serverResponseLabel.addStyleName("serverResponseLabelError");
-						serverResponseLabel.setHTML(SERVER_ERROR);
+						serverResponseLabel.setHTML(msg.serverError());
 						dialogBox.center();
 						closeButton.setFocus(true);
 					}
 
-					public void onSuccess(String result) {
-						dialogBox.setText("Remote Procedure Call");
+					public void onSuccess(String[] result) {
+						dialogBox.setText(msg.dlgTitle());
 						serverResponseLabel.removeStyleName("serverResponseLabelError");
-						serverResponseLabel.setHTML(result);
+						serverResponseLabel.setHTML(msg.greetingServiceServerReply(result[0], result[1], result[2]));
 						dialogBox.center();
 						closeButton.setFocus(true);
 					}

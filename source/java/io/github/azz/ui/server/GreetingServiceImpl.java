@@ -5,10 +5,11 @@
 
 package io.github.azz.ui.server;
 
+import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+
 import io.github.azz.logging.AppLogger;
 import io.github.azz.ui.client.GreetingService;
 import io.github.azz.ui.shared.FieldVerifier;
-import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 /**
  * Sample RPC service (from GWT SDK)
@@ -19,9 +20,9 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements Greetin
 
 	// TODO Maybe this should go into a common super-class...?
 	private static AppLogger logger = new AppLogger(GreetingServiceImpl.class);
-
-	public String greetServer(String input) throws IllegalArgumentException {
-
+	
+	public String[] greetServer(String input) throws IllegalArgumentException {
+		
 		logger.info(">>> greetServer()");
 
 		// Verify that the input is valid.
@@ -29,7 +30,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements Greetin
 			// If the input is not valid, throw an IllegalArgumentException back
 			// to
 			// the client.
-			throw new IllegalArgumentException("Name must be at least 4 characters long");
+			throw new IllegalArgumentException("Name must be at least 4 characters long"); 
 		}
 
 		String serverInfo = getServletContext().getServerInfo();
@@ -40,8 +41,10 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements Greetin
 		input = escapeHtml(input);
 		userAgent = escapeHtml(userAgent);
 
-		String result = "Hello, " + input + "!<br><br>I am running " + serverInfo +
-				".<br><br>It looks like you are using:<br>" + userAgent;
+		String[] result = new String[3];
+		result[0] = input;
+		result[1] = serverInfo;
+		result[2] = userAgent;
 
 		logger.debug("<<< greetServer(): " + result);
 

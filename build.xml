@@ -116,6 +116,11 @@ ${unnecessary.properties}"/>
 		    	<exclude name="gwt-dev-2.8.2.jar"/>
 		    </fileset>  
 		</copy>
+		<copy todir="${deployable}/WEB-INF/classes">
+			<fileset dir="${src.java}">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
 	</target>
 
 	<target name="clean" description="Clean up previous builds">
