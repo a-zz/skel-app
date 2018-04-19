@@ -1,5 +1,5 @@
 /* ****************************************************************************************************************** *
- * FieldVerifier.java                                                                                                 *
+ * SampleFieldVerifier.java                                                                                           *
  * github.com/a-zz, 2018                                                                                              *
  * ****************************************************************************************************************** */
 
@@ -7,7 +7,7 @@ package io.github.azz.ui.shared;
 
 /**
  * <p>
- * FieldVerifier validates that the name the user enters is valid.
+ * SampleFieldVerifier validates that the name the user enters is valid.
  * </p>
  * <p>
  * This class is in the <code>shared</code> package because we use it in both
@@ -26,7 +26,7 @@ package io.github.azz.ui.shared;
  * </p>
  * @author GWT SDK
  */
-public class FieldVerifier {
+public class SampleFieldVerifier {
 
 	/**
 	 * Verifies that the specified name is valid for our service.

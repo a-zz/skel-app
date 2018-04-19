@@ -1,5 +1,5 @@
 /* ****************************************************************************************************************** *
- * GreetinServiceAsync.java                                                                                           *
+ * SampleServiceAsync.java                                                                                            *
  * github.com/a-zz, 2018                                                                                              *
  * ****************************************************************************************************************** */
 
@@ -11,7 +11,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * Sample asynchronous RPC client stub (from GWT SDK)
  * @author GWT SDK
  */
-public interface GreetingServiceAsync {
+public interface SampleServiceAsync {
 	void greetServer(String input, AsyncCallback<String[]> callback) throws IllegalArgumentException;
 }
 /* ****************************************************************************************************************** */

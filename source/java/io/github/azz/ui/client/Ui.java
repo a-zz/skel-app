@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
-import io.github.azz.ui.shared.FieldVerifier;
+import io.github.azz.ui.shared.SampleFieldVerifier;
 
 /**
  * Sample entrypoint module (from GWT SDK)
@@ -39,7 +39,7 @@ public class Ui implements EntryPoint {
 	 * Create a remote service proxy to talk to the server-side Greeting
 	 * service.
 	 */
-	private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
+	private final SampleServiceAsync greetingService = GWT.create(SampleService.class);
 	
 	/**
 	 * This is the entry point method.
@@ -123,7 +123,7 @@ public class Ui implements EntryPoint {
 				// First, we validate the input.
 				errorLabel.setText("");
 				String textToServer = nameField.getText();
-				if (!FieldVerifier.isValidName(textToServer)) {
+				if (!SampleFieldVerifier.isValidName(textToServer)) {
 					errorLabel.setText(msg.atLeast4()); 
 					return;
 				}

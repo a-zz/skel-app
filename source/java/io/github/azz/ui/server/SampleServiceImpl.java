@@ -1,5 +1,5 @@
 /* ****************************************************************************************************************** *
- * GreetinServiceImpl.java                                                                                            *
+ * SampleServiceImpl.java                                                                                             *
  * github.com/a-zz, 2018                                                                                              *
  * ****************************************************************************************************************** */
 
@@ -8,25 +8,25 @@ package io.github.azz.ui.server;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import io.github.azz.logging.AppLogger;
-import io.github.azz.ui.client.GreetingService;
-import io.github.azz.ui.shared.FieldVerifier;
+import io.github.azz.ui.client.SampleService;
+import io.github.azz.ui.shared.SampleFieldVerifier;
 
 /**
  * Sample RPC service (from GWT SDK)
  * @author GWT SDK
  */
 @SuppressWarnings("serial")
-public class GreetingServiceImpl extends RemoteServiceServlet implements GreetingService {
+public class SampleServiceImpl extends RemoteServiceServlet implements SampleService {
 
 	// TODO Maybe this should go into a common super-class...?
-	private static AppLogger logger = new AppLogger(GreetingServiceImpl.class);
+	private static AppLogger logger = new AppLogger(SampleServiceImpl.class);
 	
 	public String[] greetServer(String input) throws IllegalArgumentException {
 		
 		logger.info(">>> greetServer()");
 
 		// Verify that the input is valid.
-		if (!FieldVerifier.isValidName(input)) {
+		if (!SampleFieldVerifier.isValidName(input)) {
 			// If the input is not valid, throw an IllegalArgumentException back
 			// to
 			// the client.
@@ -46,7 +46,7 @@ public class GreetingServiceImpl extends RemoteServiceServlet implements Greetin
 		result[1] = serverInfo;
 		result[2] = userAgent;
 
-		logger.debug("<<< greetServer(): " + result);
+		logger.debug("<<< greetServer(): [" + result[0] + "], [" + result[1] + "], [" + result[2] + "]");
 
 		return result;
 	}

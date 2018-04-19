@@ -1,5 +1,5 @@
 /* ****************************************************************************************************************** *
- * GreetinService.java                                                                                                *
+ * SampleService.java                                                                                                 *
  * github.com/a-zz, 2018                                                                                              *
  * ****************************************************************************************************************** */
 
@@ -12,8 +12,8 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  * Sample RPC client stub (from GWT SDK)
  * @author GWT SDK
  */
-@RemoteServiceRelativePath("greet")
-public interface GreetingService extends RemoteService {
+@RemoteServiceRelativePath("sample") // As referred in WEB-INF/web.xml
+public interface SampleService extends RemoteService {
 	String[] greetServer(String name) throws IllegalArgumentException;
 }
 /* ****************************************************************************************************************** */

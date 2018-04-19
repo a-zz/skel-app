@@ -34,7 +34,7 @@
 		</copy>
 	</target>
 	
-	<target name="java.compile" depends="layout" 
+	<target name="compile.java" depends="layout" 
 		description="Compile Java sources">
 		<mkdir dir="${deployable}/WEB-INF/classes"/>
 		<javac srcdir="${src.java}" destdir="${deployable}/WEB-INF/classes" 
@@ -43,7 +43,7 @@
 		</javac>
 	</target>
 	
-	<target name="gwt.compile" depends="layout" 
+	<target name="compile.gwt" depends="layout" 
 		description="Compile GWT JavaScript">
 		<java failonerror="true" fork="true" 
 			classname="com.google.gwt.dev.Compiler" maxmemory="512m">
@@ -58,7 +58,7 @@
 	    </java>
 	</target>
 		
-	<target name="configure" depends="java.compile, gwt.compile" 
+	<target name="configure" depends="compile.java, compile.gwt" 
 		description="Applies persistent configuration">
 		<fail message="Local configuration needed. At least
 config/web/WEB-INF/local.properties should be provided; copy it from

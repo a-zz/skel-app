@@ -48,20 +48,22 @@ Basically, the application layout is:
   
 The building process goes as this:
 
-1. init - Set the build timestamp and the deployable target directory
+1. init - Sets the build timestamp and the deployable target directory
 
-2. layout - Set the application layout. This basically means copying the
+2. layout - Sets the application layout. This basically means copying the
 	source/web directory as deployable/skel-app/
 	
-3. java.compile - Compile Java files to deployable/skel-app/WEB-INF/classes. 
+3. compile.java - Compiles Java files to deployable/skel-app/WEB-INF/classes. 
 	JARs needed for this are found in the lib/ directory.
 	
-4. gwt.compile - Compile GWT Java files to JavaScript, and place them under 
-	deployable/skel-app/ui/. JARs needed for this are found in under lib/. This
-	task is quite slow, but there's not too much we can do about it.
+4. compile.gwt - Compiles GWT Java files to JavaScript, and places them under 
+	deployable/skel-app/ui/. JARs needed for this are found under lib/. This
+	task can be quite slow, but there's not too much we can do about it: 
+	a complete set of JavaScript files are produced for every browser *and* 
+	language supported.
 	
-5. configure & postconfigure - Apply persistent configurations to the deployable 
-	application. Again, see below.
+5. configure & postconfigure - Applies persistent configurations to the 
+	deployable application. Again, see below.
 	
 6. deployable - Final touches to the deployable application. Basically, copying 
 	the JARs from lib/ to deployable/skel-app/WEB-INF/lib, and anything 
@@ -96,14 +98,14 @@ config/web/.
 As the file most likely to be kept this way (and the most likely to be changed 
 between releases, and the most likey to cause trouble) is 
 WEB-INF/local.properties, the copy under config/web/ is checked against that one
-in source/web/ at the configure step; build fails if missing property keys are 
-found. The check is also made reversely: properties in config/ not found in web/ 
-are likely been left behind from earlier releases. In this case an informative 
-message is rendered within the build output, though this doesn't cause the build 
-to fail. 
+in source/web/ at the configure task; build fails if missing property keys are 
+found. The check is also made reversely at the postconfigure task: properties in 
+config/ not found in web/ are likely been left behind from earlier releases. In 
+this case an informative message is rendered within the build output, though 
+this doesn't cause the build to fail. 
 
 Also under config/ can be found the build/ subdirectory. That's intended for
-local configurations affecting the build process. Currently none.
+local configurations affecting the building process. Currently none.
 
 ..:: DEPLOYMENT ::..
 As said, when the build process is finished we have a j2ee-deployable 
@@ -136,19 +138,7 @@ Those unwilling to mess with manual setup can rely on the "New Project > Java
 Project from Existing Ant Buildfile" wizard, which works pretty well. The 
 server configuration must still be done manually, though.
 
-The concept and building process of GWT makes for some difficulty. Under GWT,
-the client code is written in Java and then compiled to regular JavaScript 
-files at build time (ant gwt.compile task). When coding and debugging the UI, 
-it's a good thing to have changes to the client-code Java files hot-replaced 
-into the accordant JavaScript files; GWT has a "devmode" for that. It's 
-launched by running the class com.google.gwt.dev.DevMode found in gwt-dev.jar.
-The Ant build file has a specific task for that (gwt.devmode) which works fine,
-but has the minor hindrance of preventing other Ant tasks to run. To avoid that,
-under Eclipse, a run/debug configuration may be set up; take the gwt.devmode
-task in build.xml as a reference for the command-line arguments needed. In any
-case, GWT's devmode should be started before launching the Tomcat server.
-
-Some additional things worth saying:
+Anyway, a few things worth saying:
 
 i. An Ant build should be made before configuring the project Build Path in 
 order to populate de deployable directory. Build Path output folder should be
@@ -170,7 +160,21 @@ deployable/ and config/ directories. A sample file is provided, which also
 avoids tracking of Eclipse project settings files and other stuff. It's just
 needed to copy sample.gitignore as .gitignore to have it doing its magic.
 
-iv. After running GWT devmode, a complete build (ant deployable) is needed in
+The concept and building process of GWT makes for some additional difficulty. 
+
+Under GWT, the client code is written in Java and then compiled to regular 
+JavaScript files at build time (ant compile.gwt task). When coding and debugging 
+the UI, it's a good thing to have changes to the client-code Java files 
+hot-replaced into the accordant JavaScript files. GWT has a "devmode" for that, 
+it's launched by running the class com.google.gwt.dev.DevMode found in 
+gwt-dev.jar. The Ant build file has a specific task for that (gwt.devmode) which 
+works fine, but has the minor hindrance of preventing other Ant tasks to run. 
+To avoid that, under Eclipse, a run/debug configuration may be set up; take the 
+gwt.devmode task in build.xml as a reference for the command-line arguments 
+needed. In any case, GWT's devmode should be started before launching the Tomcat 
+server.
+
+After running GWT devmode, a complete build (ant deployable) is needed in
 order to run the Tomcat server without devmode backend (i.e. with generated
 JavaScript files statically compiled).
 --------------------------------------------------------------------------------
