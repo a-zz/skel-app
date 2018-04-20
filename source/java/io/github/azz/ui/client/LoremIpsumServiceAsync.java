@@ -1,5 +1,5 @@
 /* ****************************************************************************************************************** *
- * SampleServiceAsync.java                                                                                            *
+ * LoremIpsumServiceAsync.java                                                                                        *
  * github.com/a-zz, 2018                                                                                              *
  * ****************************************************************************************************************** */
 
@@ -8,10 +8,11 @@ package io.github.azz.ui.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 /**
- * Sample asynchronous RPC client stub (from GWT SDK)
- * @author GWT SDK
+ * Sample asynchronous RPC client stub
+ * @author a-zz
  */
-public interface SampleServiceAsync {
-	void greetServer(String input, AsyncCallback<String[]> callback) throws IllegalArgumentException;
+public interface LoremIpsumServiceAsync {
+	void getLoremIpsum(int paragraphs, int maxWordsPerPrgrph, AsyncCallback<String> callback) 
+			throws IllegalArgumentException;
 }
 /* ****************************************************************************************************************** */
