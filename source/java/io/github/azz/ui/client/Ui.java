@@ -91,24 +91,24 @@ public class Ui implements EntryPoint {
 		StackLayoutPanel result = new StackLayoutPanel(Unit.EM);
 		
 		MenuBar menu1 = new MenuBar(true);
-		menu1.addItem(msg.menu1_1(), new menuCommandExecutor("1.1"));
-		menu1.addItem(msg.menu1_2(), new menuCommandExecutor("1.2"));
-		menu1.addItem(msg.menu1_3(), new menuCommandExecutor("1.3"));
-		menu1.addItem(msg.menu1_4(), new menuCommandExecutor("1.4"));
-		menu1.addItem(msg.menu1_5(), new menuCommandExecutor("1.5"));
-		menu1.addItem(msg.menu1_6(), new menuCommandExecutor("1.6"));		
+		menu1.addItem(msg.menu1_1(), new MenuCommandExecutor("1.1"));
+		menu1.addItem(msg.menu1_2(), new MenuCommandExecutor("1.2"));
+		menu1.addItem(msg.menu1_3(), new MenuCommandExecutor("1.3"));
+		menu1.addItem(msg.menu1_4(), new MenuCommandExecutor("1.4"));
+		menu1.addItem(msg.menu1_5(), new MenuCommandExecutor("1.5"));
+		menu1.addItem(msg.menu1_6(), new MenuCommandExecutor("1.6"));		
 		
 		MenuBar menu2 = new MenuBar(true);
-		menu2.addItem(msg.menu2_1(), new menuCommandExecutor("2.1"));
-		menu2.addItem(msg.menu2_2(), new menuCommandExecutor("2.2"));
-		menu2.addItem(msg.menu2_3(), new menuCommandExecutor("2.3"));
-		menu2.addItem(msg.menu2_4(), new menuCommandExecutor("2.4"));
+		menu2.addItem(msg.menu2_1(), new MenuCommandExecutor("2.1"));
+		menu2.addItem(msg.menu2_2(), new MenuCommandExecutor("2.2"));
+		menu2.addItem(msg.menu2_3(), new MenuCommandExecutor("2.3"));
+		menu2.addItem(msg.menu2_4(), new MenuCommandExecutor("2.4"));
 		
 		MenuBar menu3 = new MenuBar(true);
-		menu3.addItem(msg.menu3_1(), new menuCommandExecutor("3.1"));
-		menu3.addItem(msg.menu3_2(), new menuCommandExecutor("3.2"));
-		menu3.addItem(msg.menu3_3(), new menuCommandExecutor("3.3"));
-		menu3.addItem(msg.menu3_4(), new menuCommandExecutor("3.4"));
+		menu3.addItem(msg.menu3_1(), new MenuCommandExecutor("3.1"));
+		menu3.addItem(msg.menu3_2(), new MenuCommandExecutor("3.2"));
+		menu3.addItem(msg.menu3_3(), new MenuCommandExecutor("3.3"));
+		menu3.addItem(msg.menu3_4(), new MenuCommandExecutor("3.4"));
 				
 		int hdrHeight = 2;
 		int maxSubMenuItemCount = 6;
@@ -199,11 +199,11 @@ public class Ui implements EntryPoint {
 	}
 	
 	// Command executor for the menu options
-	private class menuCommandExecutor implements ScheduledCommand {
+	private class MenuCommandExecutor implements ScheduledCommand {
 		
 		private String commandCode;
 		
-		public menuCommandExecutor(String code) {
+		public MenuCommandExecutor(String code) {
 			
 			commandCode = code;
 		}
