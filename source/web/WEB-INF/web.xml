@@ -25,13 +25,13 @@
 	<!-- Servlet definitions -->
 	<servlet>
     	<servlet-name>uiSampleServlet</servlet-name>
-    	<servlet-class>io.github.azz.ui.server.SampleServiceImpl</servlet-class>
+    	<servlet-class>io.github.azz.ui.server.LoremIpsumServiceImpl</servlet-class>
   	</servlet>
 
 	<!-- Define mappings -->
 	<servlet-mapping>
     	<servlet-name>uiSampleServlet</servlet-name>
-    	<url-pattern>/ui/sample</url-pattern>
+    	<url-pattern>/ui/loremIpsum</url-pattern>
   	</servlet-mapping>
 
 	<!-- Session config -->

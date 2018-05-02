@@ -5,158 +5,215 @@
 
 package io.github.azz.ui.client;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.logical.shared.SelectionEvent;
+import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.VerticalPanel;
-
-import io.github.azz.ui.shared.SampleFieldVerifier;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.google.gwt.user.client.ui.SplitLayoutPanel;
+import com.google.gwt.user.client.ui.StackLayoutPanel;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
 
 /**
- * Sample entrypoint module (from GWT SDK)
- * @author GWT SDK
+ * Sample entrypoint module
+ * @author a-zz
  */
 public class Ui implements EntryPoint {
 
-	/**
-	 * (Localizable) messages 
-	 */
+	// (Localizable) messages 
 	private UiMessages msg = GWT.create(UiMessages.class);
 
-	/**
-	 * Create a remote service proxy to talk to the server-side Greeting
-	 * service.
-	 */
-	private final SampleServiceAsync greetingService = GWT.create(SampleService.class);
+	/// Remote service proxy to talk to the server-side Lorem Ipsum generator
+	private final LoremIpsumServiceAsync loremIpsumService = GWT.create(LoremIpsumService.class);
 	
-	/**
-	 * This is the entry point method.
-	 */
+	// UI components
+	private RootLayoutPanel rootCntnr;
+	private SplitLayoutPanel mainCntnr;
+	private DockLayoutPanel side;
+	private StackLayoutPanel menu;
+	private TabLayoutPanel workspace;
+	private HTML statusArea;
+	
+	// A simple flag for initializacion control
+	private boolean uiIsInitialized = false;
+	
+	// Entry point method
 	public void onModuleLoad() {
 
-		Window.setTitle(msg._window_title() + " ");
+		// Setting the window title
+		Window.setTitle(msg._windowTitle() + " ");
+			
+		UiBuild();
+		UiInitialize();
+	}		
+	
+	// Builds the UI
+	private void UiBuild() {
 		
-		final Button sendButton = new Button(msg.sendBtnTxt());
-		final TextBox nameField = new TextBox();
-		nameField.setText(msg.defaultUserName());
-		final Label errorLabel = new Label();
+		side = new DockLayoutPanel(Unit.EM);
+		side.addNorth(new HTML("[logo]"), 4);
+		
+		menu = buildMenu();
+		side.add(menu);					
+		
+		workspace = buildWorkspaceTabContainer();
+		statusArea = new HTML("");
+		mainCntnr = new SplitLayoutPanel(4);
+		mainCntnr.addWest(side, 0.1 * Window.getClientWidth());
+		mainCntnr.addSouth(statusArea, 0.1 * Window.getClientHeight());
+		mainCntnr.add(workspace);
+		
+		rootCntnr = RootLayoutPanel.get();
+		rootCntnr.add(mainCntnr);		
+	}
+	
+	// Runs initialization (post UI build) code
+	private void UiInitialize() {
 
-		// We can add style names to widgets
-		sendButton.addStyleName("sendButton");
+		LoremIpsumAsyncCallback loremIpsumResponse = new LoremIpsumAsyncCallback((HTML)workspace.getWidget(0));
+		loremIpsumService.getLoremIpsum(3, 50, loremIpsumResponse);
+		logToStatusArea(msg._initializationComplete());
+		uiIsInitialized = true;
+	}
+	
+	// Building the menu
+	private StackLayoutPanel buildMenu() {
+		
+		StackLayoutPanel result = new StackLayoutPanel(Unit.EM);
+		
+		MenuBar menu1 = new MenuBar(true);
+		menu1.addItem(msg.menu1_1(), new menuCommandExecutor("1.1"));
+		menu1.addItem(msg.menu1_2(), new menuCommandExecutor("1.2"));
+		menu1.addItem(msg.menu1_3(), new menuCommandExecutor("1.3"));
+		menu1.addItem(msg.menu1_4(), new menuCommandExecutor("1.4"));
+		menu1.addItem(msg.menu1_5(), new menuCommandExecutor("1.5"));
+		menu1.addItem(msg.menu1_6(), new menuCommandExecutor("1.6"));		
+		
+		MenuBar menu2 = new MenuBar(true);
+		menu2.addItem(msg.menu2_1(), new menuCommandExecutor("2.1"));
+		menu2.addItem(msg.menu2_2(), new menuCommandExecutor("2.2"));
+		menu2.addItem(msg.menu2_3(), new menuCommandExecutor("2.3"));
+		menu2.addItem(msg.menu2_4(), new menuCommandExecutor("2.4"));
+		
+		MenuBar menu3 = new MenuBar(true);
+		menu3.addItem(msg.menu3_1(), new menuCommandExecutor("3.1"));
+		menu3.addItem(msg.menu3_2(), new menuCommandExecutor("3.2"));
+		menu3.addItem(msg.menu3_3(), new menuCommandExecutor("3.3"));
+		menu3.addItem(msg.menu3_4(), new menuCommandExecutor("3.4"));
+				
+		int hdrHeight = 2;
+		int maxSubMenuItemCount = 6;
+		result.add(menu1, msg.menu1(), hdrHeight);
+		result.add(menu2, msg.menu2(), hdrHeight);
+		result.add(menu3, msg.menu3(), hdrHeight);
+		result.setHeight((2 * maxSubMenuItemCount) + ( + result.getWidgetCount() * hdrHeight) + "em");
+		
+		return result;
+	}
+	
+	// Building the workspace tab container
+	private TabLayoutPanel buildWorkspaceTabContainer() {
+		
+		TabLayoutPanel result = new TabLayoutPanel(2, Unit.EM);
+		
+		result.add(new HTML("<p>" + msg._initializing() + "</p>"), msg.tab1());
+		result.getTabWidget(0).setTitle(msg.tab1Description());
+		result.add(new HTML(msg.tab2()), msg.tab2());
+		result.getTabWidget(1).setTitle(msg.tab2Description());
+		result.add(new HTML(msg.tab3()), msg.tab3());
+		result.getTabWidget(2).setTitle(msg.tab3Description());
+		result.add(new HTML(msg.tab4()), msg.tab4());
+		result.getTabWidget(3).setTitle(msg.tab4Description());
+		result.add(new HTML(msg.tab5()), msg.tab5());
+		result.getTabWidget(4).setTitle(msg.tab5Description());
+		result.add(new HTML(msg.tab6()), msg.tab6());
+		result.getTabWidget(5).setTitle(msg.tab6Description());
+		result.add(new HTML(msg.tab7()), msg.tab7());
+		result.getTabWidget(6).setTitle(msg.tab7Description());
+		result.addSelectionHandler(new WorkSpaceTabSelectionHandler());
+		
+		return result;
+	}
+	
+	@SuppressWarnings("deprecation")
+	private void logToStatusArea(String message) {
 
-		// Add the nameField and sendButton to the RootPanel
-		// Use RootPanel.get() to get the entire body element
-		RootPanel.get("_body_title").add(new Label(msg._body_title()));
-		RootPanel.get("_section_title_1").add(new HTML(msg._section_title_1()));
-		RootPanel.get("nameFieldCaption").add(new Label(msg.nameFldCaption()));
-		RootPanel.get("nameFieldContainer").add(nameField);
-		RootPanel.get("sendButtonContainer").add(sendButton);
-		RootPanel.get("errorLabelContainer").add(errorLabel);
-
-		// Focus the cursor on the name field when the app loads
-		nameField.setFocus(true);
-		nameField.selectAll();
-
-		// Create the popup dialog box
-		final DialogBox dialogBox = new DialogBox();
-		dialogBox.setText(msg.dlgTitle());
-		dialogBox.setAnimationEnabled(true);
-		final Button closeButton = new Button(msg.dlgCloseBtnTxt());
-		// We can set the id of a widget by accessing its Element
-		closeButton.getElement().setId("closeButton");
-		final Label textToServerLabel = new Label();
-		final HTML serverResponseLabel = new HTML();
-		VerticalPanel dialogVPanel = new VerticalPanel();
-		dialogVPanel.addStyleName("dialogVPanel");
-		dialogVPanel.add(new HTML("<b>" + msg.sendingNameToTheServer() + ":</b>"));
-		dialogVPanel.add(textToServerLabel);
-		dialogVPanel.add(new HTML("<br><b>" + msg.serverReplies() + ":</b>")); 
-		dialogVPanel.add(serverResponseLabel);
-		dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
-		dialogVPanel.add(closeButton);
-		dialogBox.setWidget(dialogVPanel);
-
-		// Add a handler to close the DialogBox
-		closeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				dialogBox.hide();
-				sendButton.setEnabled(true);
-				sendButton.setFocus(true);
-			}
-		});
-
-		// Create a handler for the sendButton and nameField
-		class MyHandler implements ClickHandler, KeyUpHandler {
-			/**
-			 * Fired when the user clicks on the sendButton.
-			 */
-			public void onClick(ClickEvent event) {
-				sendNameToServer();
-			}
-
-			/**
-			 * Fired when the user types in the nameField.
-			 */
-			public void onKeyUp(KeyUpEvent event) {
-				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-					sendNameToServer();
-				}
-			}
-
-			/**
-			 * Send the name from the nameField to the server and wait for a
-			 * response.
-			 */
-			private void sendNameToServer() {
-				// First, we validate the input.
-				errorLabel.setText("");
-				String textToServer = nameField.getText();
-				if (!SampleFieldVerifier.isValidName(textToServer)) {
-					errorLabel.setText(msg.atLeast4()); 
-					return;
-				}
-
-				// Then, we send the input to the server.
-				sendButton.setEnabled(false);
-				textToServerLabel.setText(textToServer);
-				serverResponseLabel.setText("");
-				greetingService.greetServer(textToServer, new AsyncCallback<String[]>() {
-					public void onFailure(Throwable caught) {
-						// Show the RPC error message to the user
-						dialogBox.setText(msg.dlgTitle() + " - " + msg.failure());
-						serverResponseLabel.addStyleName("serverResponseLabelError");
-						serverResponseLabel.setHTML(msg.serverError());
-						dialogBox.center();
-						closeButton.setFocus(true);
-					}
-
-					public void onSuccess(String[] result) {
-						dialogBox.setText(msg.dlgTitle());
-						serverResponseLabel.removeStyleName("serverResponseLabelError");
-						serverResponseLabel.setHTML(msg.greetingServiceServerReply(result[0], result[1], result[2]));
-						dialogBox.center();
-						closeButton.setFocus(true);
-					}
-				});
-			}
+		// TODO Write a shared date formatter
+		Date now = new Date();
+		int h = now.getHours();
+		int m = now.getMinutes();
+		int s = now.getSeconds();
+		String time = (h<10?"0"+h:""+h) + ":" + (m<10?"0"+m:""+m) + ":" + (s<10?"0"+s:""+s);	
+		statusArea.setHTML(time + " - " + message + "<br/>" + statusArea.getHTML());
+	}
+	
+	// Callback handler for Lorem Ipsum service
+	private class LoremIpsumAsyncCallback implements AsyncCallback<String> {
+		
+		private HTML target;
+		
+		LoremIpsumAsyncCallback(HTML target) {
+			
+			this.target = target;
 		}
 
-		// Add a handler to send the name to the server
-		MyHandler handler = new MyHandler();
-		sendButton.addClickHandler(handler);
-		nameField.addKeyUpHandler(handler);
+		@Override
+		public void onFailure(Throwable caught) {
+			
+			target.setHTML(msg._serverError() + ": " + caught.getMessage());
+			logToStatusArea(msg._serverError() + ": " + caught.getMessage());
+		}
+
+		@Override
+		public void onSuccess(String result) {
+			
+			target.setHTML(result);
+			logToStatusArea(msg.gotLoremIpsum());
+
+		}		
+	}
+	
+	// Selection handler for workspace tab container
+	private class WorkSpaceTabSelectionHandler implements SelectionHandler<Integer> {
+
+		@Override
+		public void onSelection(SelectionEvent<Integer> event) {
+						
+			if(workspace.getSelectedIndex()==0) {
+				
+				HTML targetWidget = (HTML)workspace.getWidget(0);
+				targetWidget.setHTML("<p>" + msg._updating() + "</p>");
+				LoremIpsumAsyncCallback loremIpsumResponse = new LoremIpsumAsyncCallback(targetWidget);
+				loremIpsumService.getLoremIpsum(3, 50, loremIpsumResponse);							
+			}
+		}
+	}
+	
+	// Command executor for the menu options
+	private class menuCommandExecutor implements ScheduledCommand {
+		
+		private String commandCode;
+		
+		public menuCommandExecutor(String code) {
+			
+			commandCode = code;
+		}
+		
+		@Override
+		public void execute() {
+			
+			if(uiIsInitialized)			
+				logToStatusArea(msg._executingMenuCmd() + ": " + commandCode);
+		}	
 	}
 }
 /* ****************************************************************************************************************** */
