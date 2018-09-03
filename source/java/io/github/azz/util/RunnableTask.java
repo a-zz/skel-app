@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * An abstract class extending the abilites of Runnable with monitorizable progress status and richer execution control
+ * An abstract class extending the abilites of Runnable with monitorizable progress status and richer execution control.
  * @author a-zz
  */
 public abstract class RunnableTask implements Runnable {
@@ -64,8 +64,8 @@ public abstract class RunnableTask implements Runnable {
 	}
 	
 	/**
-	 * Gets the current status
-	 * @param withPc (boolean) Sets whether de current progress percentage should be prepended to the status message 
+	 * Gets the current status.
+	 * @param withPc (boolean) Sets whether the current progress percentage should be prepended to the status message 
 	 * @return (String) The current status message. If withPc is true, the percentage is prepended with "[ ##%] ".
 	 */
 	public String getCurrentStatus(boolean withPc) {
@@ -79,7 +79,7 @@ public abstract class RunnableTask implements Runnable {
 	}
 
 	/**
-	 * Gets the progress percentage
+	 * Gets the progress percentage.
 	 * @return (int)
 	 */
 	public int getProgressPc() {
@@ -127,7 +127,7 @@ public abstract class RunnableTask implements Runnable {
 	}
 	
 	/**
-	 * Gets the current execution status
+	 * Gets the current execution status.
 	 * @return (EnumExecutionStatus)
 	 */
 	public EnumExecutionStatus getExecutionStatus() {
@@ -136,7 +136,7 @@ public abstract class RunnableTask implements Runnable {
 	}
 	
 	/**
-	 * Gets the task start time
+	 * Gets the task start time.
 	 * @return (Date)
 	 */
 	public Date getStartTime() {
@@ -145,7 +145,7 @@ public abstract class RunnableTask implements Runnable {
 	}
 	
 	/**
-	 * Gets the task end time
+	 * Gets the task end time.
 	 * @return (Date)
 	 */
 	public Date getEndTime() {

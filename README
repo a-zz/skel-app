@@ -28,6 +28,8 @@
 
 * App logging via log4j2.
 
+* Optional UI support: GWT 2.8.2 (in branch gwt).
+
 * Tested for servlet container: Apache Tomcat 8.5
 
 --------------------------------------------------------------------------------
