@@ -94,14 +94,14 @@ public class ThreadWatchdog implements Runnable {
 		try {
 			// Running periodically until not needed anymore (*)
 			while(true) {	
-				// Check whether at least a thread to be watched was added after initialization; wait for next loop
+				// Check whether at least a thread to be watched was added after initialization; wait for next iteration
 				//	otherwise.
 				if(parent.threadExpirationMap==null) {
 					Thread.sleep(DEFAULT_LOOP_INTERVAL);
 					continue;
 				}
 				
-				// Next loop will be scheduled to run after DEFAULT_LOOP_INTERVAL millis (in order to watch for
+				// Next iteration will be scheduled to run after DEFAULT_LOOP_INTERVAL millis (in order to watch for
 				//	threads exited by themselves or interrupted externally). But... (**)
 				long now = new Date().getTime();						
 				long nextExpirationTime = now + DEFAULT_LOOP_INTERVAL;
@@ -129,8 +129,8 @@ public class ThreadWatchdog implements Runnable {
 								") has been interrupted after specified timeout");
 					}
 					else
-						// (**)... if a thread is due to timeout before DEFAULT_LOOP_INTERVAL, the next loop will be
-						//	scheduled accordingly.
+						// (**)... if a thread is due to timeout before DEFAULT_LOOP_INTERVAL, the next interation will
+						//	be scheduled accordingly.
 						nextExpirationTime = threadExpirationTime<nextExpirationTime?
 								threadExpirationTime:
 									nextExpirationTime;
@@ -147,16 +147,16 @@ public class ThreadWatchdog implements Runnable {
 					return;
 				}
 				else if(INSTANCE.threadExpirationMap.size()==0) {
-					logger.trace(removalRequired.size() + " threads removed in current loop, " +
+					logger.trace(removalRequired.size() + " threads removed in current iteration, " +
 							"no threads remaining, finalizing instance");
 					INSTANCE = null;
 					return;
 				}
 				else if(removalRequired.size()>0)
-					logger.trace(removalRequired.size() + " threads removed in current loop, " + 
+					logger.trace(removalRequired.size() + " threads removed in current iteration, " + 
 							parent.threadExpirationMap.size() + " remaining");
 					
-				// Scheduling next loop 
+				// Scheduling next iteration 
 				Thread.sleep(nextExpirationTime-now);
 
 			}
