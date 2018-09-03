@@ -28,7 +28,11 @@
 
 * App logging via log4j2.
 
-* Optional UI support: GWT 2.8.2 (in branch gwt).
+* GWT 2.8.2 UI support (as an option; to be found in branch gwt). 
+	Please consider that builtin UI support is the very basic; in order to get 
+	full advantage of GWT, a full SDK should be downloaded 
+	(from http://www.gwtproject.org/download.html) and the required JARs added 
+	to the project.
 
 * Tested for servlet container: Apache Tomcat 8.5
 
