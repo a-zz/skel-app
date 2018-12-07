@@ -51,7 +51,7 @@ super-class and implement its abstract methods:
 
   public class Test extends Schedulable {
 
-	  private static AppLogger logger = new AppLogger(HealthCheck.class);
+	  private static AppLogger logger = new AppLogger(Test.class);
 		
 	  public void run() {
 		
