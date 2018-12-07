@@ -14,8 +14,7 @@ import io.github.azz.sql.rdbms.HSQLDBInterface;
 
 /**
  * HSQLDB data access implementation for DbManager class 
- * @author a.suarez
- *
+ * @author a-zz
  */
 public class DbManagerHSQLDB implements DbManagerDaInterface, HSQLDBInterface {
 
