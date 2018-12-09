@@ -108,12 +108,10 @@ should be applied:
   * Don't log at data access implementation classes; automatic logging by 
   	SqlTransaction class should be enough at that level.
   	
-  * Data access implementation classes' methods MUST catch SqlException in
-  	order to close the transaction in the finally{} block, and then re-throw
-  	the exception.
-  	
-  * Data acces consumer classes' methods (i.e. .mypackage.MyClass) SHOULDN'T
-  	catch any exception emerging from implementation classes.
+  * In error (SQLException) data access implementation classes' methods MUST 
+  	close the transaction in the finally block and throw an exception 
+  	relevant to the data access consumer class. It may be the same SQLException
+  	re-thrown, but it may be not. 
   	
 As usual, the best approach to meeting this guidelines is copying code from 
 an already-working data access consuming class.  	  	 
