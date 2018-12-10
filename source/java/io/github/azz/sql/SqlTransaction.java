@@ -133,6 +133,7 @@ public class SqlTransaction {
 		}
 		catch(SQLException e) {
 			rollback();
+			logger.error(e.getMessage());
 			throw e;
 		}
 		finally {
@@ -176,6 +177,7 @@ public class SqlTransaction {
 		}
 		catch(SQLException e) {			
 			rollback();
+			logger.error(e.getMessage());
 			throw e;
 		}
 		finally {
@@ -223,6 +225,7 @@ public class SqlTransaction {
 		}
 		catch(SQLException e) {			
 			rollback();
+			logger.error(e.getMessage());
 			try {
 				if(rs!=null)
 				{
@@ -267,6 +270,7 @@ public class SqlTransaction {
 			logger.sql(this.toString() + ": COMMIT \\o/" + listSqlInstructions(true));
 		}
 		catch(SQLException e) {
+			logger.error(e.getMessage());
 			throw e;
 		}
 	}
@@ -285,6 +289,7 @@ public class SqlTransaction {
 			logger.sql(this.toString() + ": ROLLBACK :_(" + listSqlInstructions(true));
 		}
 		catch(SQLException e) {
+			logger.error(e.getMessage());
 			throw e;
 		}
 	}	
