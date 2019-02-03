@@ -196,8 +196,10 @@ public class SqlTransaction {
 	 * Run a SQL query
 	 * @param sql (String) The SQL query to run
 	 * @return (ResultSet) The data result set returned by the query. This class tracks the result set object and closes
-	 * 	it with the transaction, so it's unnecesary to close the result set explicitly.
+	 * 	it with the transaction, so it's unnecesary to close the result set explicitly. Anyway, it may be closed by
+	 * 	invoking discardResultSet() when appropriate. 
 	 * @throws SQLException
+	 * @see discardResultSet()
 	 */
 	public ResultSet query(String sql) throws SQLException {
 
@@ -253,6 +255,55 @@ public class SqlTransaction {
 		return rs;
 	}
 	
+	/**
+	 * Close a result set prevously returned by a query and discard its contents.
+	 * 	<br><br>
+	 *  Although result sets are to be closed along with the transaction itlsef, in long transactions holding result
+	 *  sets can lead to cursor depletion in the database engine. This functions allow for selective result set 
+	 *  destruction when appropriate. 
+	 * @param rs (ResultSet) The result set to be discarded.
+	 * @throws SQLException
+	 * TODO To be tested
+	 */
+	public void discardResultSet(ResultSet rs) throws SQLException {
+		
+		if(rs==null)
+			throw new IllegalArgumentException("Can't discard a null ResulSet");
+		
+		if(openObjects.contains(rs)) {
+			openObjects.remove(rs);
+			rs.close();
+			rs = null;
+		}
+		else
+			logger.warn("Tried to discard a ResultSet not related to the transaction");
+	}
+
+	
+	/**
+	 * Run a SQL query and dump the resulting ResultSet to the application log with SQL level. This is useful for
+	 * 	debugging, as transaction isolation will likely make queries run from an external application show out of date
+	 * 	results.  
+	 * @param sql (String) The SQL query to run
+	 * @throws SQLException
+	 * TODO To be tested
+	 */
+	public void testQuery(String sql) throws SQLException {
+		
+		ResultSet rs = query(sql);
+		int row = 0;
+		String dump = "Showing result set for: " + sql + "\n";
+		while(rs.next()) {
+			dump += "--- Row #" + row + ":\n";
+			for(int col=1; col<=rs.getMetaData().getColumnCount(); col++)
+				dump += "\t" + rs.getMetaData().getColumnName(col) + 
+					"[" + rs.getMetaData().getColumnTypeName(col).toLowerCase() + "] = " +
+						rs.getString(col) + "\n";
+		}
+		logger.sql(dump);
+		discardResultSet(rs);
+	}
+		
 	/**
 	 * Commits the transaction
 	 * @throws SQLException
